@@ -1,0 +1,51 @@
+spring:
+  application:
+    name: talentflow-backend
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/ats}
+    username: ${SPRING_DATASOURCE_USERNAME:ats}
+    password: ${SPRING_DATASOURCE_PASSWORD:ats_dev}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate      # le schéma est géré uniquement par Flyway
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: 6379
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+
+server:
+  port: 8080
+  error:
+    include-message: never
+    include-stacktrace: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:change-me-in-prod-change-me-in-prod}
+    access-token-minutes: 15
+    refresh-token-days: 7
+  storage:
+    endpoint: ${STORAGE_ENDPOINT:http://localhost:9000}
+    bucket: ${STORAGE_BUCKET:ats-cv}

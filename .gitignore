@@ -1,0 +1,18 @@
+# Env & secrets
+.env
+
+# Java / Maven
+backend/target/
+*.class
+*.log
+
+# Node / Angular
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.DS_Store
