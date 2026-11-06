@@ -1,5 +1,6 @@
 # TalentFlow ATS
 
+#En cours de développement
 
 Application de gestion RH et de recrutement (Applicant Tracking System).
 Stack : Spring Boot, Angular, PostgreSQL, Redis, Docker, AWS / GCP.
