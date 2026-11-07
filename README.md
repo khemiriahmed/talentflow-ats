@@ -1,7 +1,5 @@
 # TalentFlow ATS
 
-# En cours de développement
-
 Application de gestion RH et de recrutement (Applicant Tracking System).
 Stack : Spring Boot, Angular, PostgreSQL, Redis, Docker, AWS / GCP.
 
@@ -18,7 +16,7 @@ docker compose --profile dev up --build
 | Swagger UI | http://localhost:8080/swagger-ui.html |
 | Health | http://localhost:8080/actuator/health |
 | MailHog | http://localhost:8025 |
-| MinIO console | http://localhost:9001 |
+| S3 mock | http://localhost:9090 |
 | pgAdmin (profil dev) | http://localhost:5050 |
 
 Le frontend Angular sera ajouté ensuite (profil `full`).
