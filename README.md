@@ -28,3 +28,23 @@ backend/    API Spring Boot (Java 21, Maven)
 frontend/   Application Angular (à venir)
 docker-compose.yml
 ```
+
+## Authentification (JWT)
+
+| Endpoint | Accès | Description |
+|---|---|---|
+| `POST /api/v1/auth/register` | public | Inscription candidat (retourne les tokens) |
+| `POST /api/v1/auth/login` | public | Connexion |
+| `POST /api/v1/auth/refresh` | public | Nouveau couple access/refresh token |
+| `GET /api/v1/auth/me` | authentifié | Profil de l'utilisateur courant |
+| `/api/v1/admin/users` | ADMIN | Liste, création, changement de rôle, activation/désactivation |
+
+Dans Swagger UI : faire `login`, copier `accessToken`, cliquer sur **Authorize** et le coller.
+
+Comptes de démo (profil `dev` uniquement) :
+
+| Rôle | Email | Mot de passe |
+|---|---|---|
+| ADMIN | admin@talentflow.local | Admin123! |
+| HR | hr@talentflow.local | Hr123456! |
+| MANAGER | manager@talentflow.local | Manager123! |
