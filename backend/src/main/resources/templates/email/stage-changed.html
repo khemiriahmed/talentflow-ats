@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;background:#f1f5f9;">
+<div style="max-width:600px;margin:0 auto;background:#ffffff;">
+    <div th:replace="~{email/fragments :: header}"></div>
+    <div style="padding:24px;font-family:Arial,sans-serif;font-size:15px;color:#0f172a;line-height:1.5;">
+        <p>Bonjour <span th:text="${candidateName}">Prénom Nom</span>,</p>
+
+        <th:block th:if="${rejected}">
+            <p>Nous avons le regret de vous informer que votre candidature pour le poste
+                <strong th:text="${jobTitle}">Titre du poste</strong> n'a pas été retenue.</p>
+            <p>Nous vous remercions de l'intérêt que vous avez porté à notre entreprise et
+                vous souhaitons plein succès dans vos recherches.</p>
+        </th:block>
+
+        <th:block th:if="${hired}">
+            <p>Excellente nouvelle : nous sommes ravis de vous confirmer votre embauche pour le poste
+                <strong th:text="${jobTitle}">Titre du poste</strong>.
+                Nous reviendrons vers vous très prochainement avec les prochaines démarches.</p>
+        </th:block>
+
+        <th:block th:unless="${rejected or hired}">
+            <p>Votre candidature pour le poste <strong th:text="${jobTitle}">Titre du poste</strong>
+                a avancé. Nouvelle étape : <strong th:text="${stageLabel}">Présélection</strong>.</p>
+            <p>Nous vous tiendrons informé(e) de la suite du processus.</p>
+        </th:block>
+
+        <p>Cordialement,<br>L'équipe recrutement</p>
+    </div>
+    <div th:replace="~{email/fragments :: footer}"></div>
+</div>
+</body>
+</html>

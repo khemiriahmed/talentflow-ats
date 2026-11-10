@@ -1,0 +1,45 @@
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<header class="site-header">
+  <div class="container bar">
+    <a class="brand" routerLink="/offres" aria-label="TalentFlow, accueil">
+      <svg class="mark" viewBox="0 0 30 12" width="30" height="12" aria-hidden="true">
+        <line x1="5" y1="6" x2="25" y2="6" stroke="currentColor" stroke-width="2" />
+        <circle cx="5" cy="6" r="4" fill="currentColor" />
+        <circle cx="15" cy="6" r="3.4" fill="#fff" stroke="currentColor" stroke-width="2" />
+        <circle cx="25" cy="6" r="3.4" fill="#fff" stroke="currentColor" stroke-width="2" />
+      </svg>
+      <span>TalentFlow</span>
+    </a>
+
+    <nav class="nav" aria-label="Navigation principale">
+      <a routerLink="/offres" routerLinkActive="active">Offres</a>
+      @if (auth.isCandidate()) {
+        <a routerLink="/mes-candidatures" routerLinkActive="active">Mes candidatures</a>
+      }
+      @if (auth.isStaff()) {
+        <a routerLink="/equipe" routerLinkActive="active">Espace équipe</a>
+      }
+    </nav>
+
+    <div class="account">
+      @if (auth.user(); as user) {
+        <span class="who">{{ user.firstName }} {{ user.lastName }}</span>
+        <button type="button" class="btn btn-quiet" (click)="logout()">Se déconnecter</button>
+      } @else {
+        <a class="btn btn-quiet" routerLink="/connexion">Se connecter</a>
+        <a class="btn btn-primary" routerLink="/inscription">Créer un compte</a>
+      }
+    </div>
+  </div>
+</header>
+
+<main id="contenu" tabindex="-1">
+  <router-outlet />
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>Votre CV n’est accessible qu’à l’équipe de recrutement concernée.</p>
+  </div>
+</footer>

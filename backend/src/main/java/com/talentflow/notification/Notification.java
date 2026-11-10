@@ -30,6 +30,13 @@ public class Notification {
     @Column(nullable = false, length = 500)
     private String message;
 
+    /** Objet concerné (APPLICATION, INTERVIEW) pour permettre la navigation côté frontend. */
+    @Column(name = "reference_type", length = 30)
+    private String referenceType;
+
+    @Column(name = "reference_id")
+    private Long referenceId;
+
     @Column(name = "is_read", nullable = false)
     private boolean read = false;
 

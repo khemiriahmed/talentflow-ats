@@ -8,12 +8,14 @@ import com.talentflow.common.ResourceNotFoundException;
 import com.talentflow.job.JobOffer;
 import com.talentflow.job.JobOfferRepository;
 import com.talentflow.job.JobStatus;
+import com.talentflow.notification.DomainEvents;
 import com.talentflow.storage.StorageService;
 import com.talentflow.user.Role;
 import com.talentflow.user.User;
 import com.talentflow.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -41,6 +43,8 @@ public class ApplicationService {
     private final StageHistoryRepository stageHistoryRepository;
     private final StorageService storageService;
     private final ApplicationMapper mapper;
+    private final ApplicationAccess access;
+    private final ApplicationEventPublisher events;
 
     // ---------- candidat ----------
 
@@ -81,14 +85,15 @@ public class ApplicationService {
 
         // Upload en dernier : s'il échoue, la transaction est annulée et rien n'est enregistré.
         storageService.upload(key, pdf, "application/pdf");
-        return mapper.toDto(saved);
+        events.publishEvent(new DomainEvents.ApplicationSubmitted(saved.getId()));
+        return mapper.toCandidateDto(saved);
     }
 
     @Transactional(readOnly = true)
     public Page<ApplicationDto> mine(Long candidateId, int page, int size) {
         return applicationRepository
                 .findAll(ApplicationSpecs.ofCandidate(candidateId), PageRequests.newestFirst(page, size))
-                .map(mapper::toDto);
+                .map(mapper::toCandidateDto);
     }
 
     /** Retrait d'une candidature (RF-23) : supprime la candidature, son historique et le CV. */
@@ -119,12 +124,8 @@ public class ApplicationService {
     // ---------- staff + candidat ----------
 
     @Transactional(readOnly = true)
-    public Page<ApplicationDto> list(CustomUserDetails user, Long jobOfferId, Stage stage,
-                                     String q, int page, int size) {
-        Specification<Application> spec = Specification
-                .where(ApplicationSpecs.forJobOffer(jobOfferId))
-                .and(ApplicationSpecs.inStage(stage))
-                .and(ApplicationSpecs.candidateMatches(q));
+    public Page<ApplicationDto> list(CustomUserDetails user, ApplicationFilter filter, int page, int size) {
+        Specification<Application> spec = ApplicationSpecs.filtered(filter);
         if (user.getRole() == Role.MANAGER) {
             spec = spec.and(ApplicationSpecs.managedBy(user.getId()));
         }
@@ -134,32 +135,20 @@ public class ApplicationService {
 
     @Transactional(readOnly = true)
     public ApplicationDto get(Long id, CustomUserDetails user) {
-        return mapper.toDto(findVisible(id, user));
+        Application application = access.findVisible(id, user);
+        return user.getRole() == Role.CANDIDATE
+                ? mapper.toCandidateDto(application)
+                : mapper.toDto(application);
     }
 
     @Transactional(readOnly = true)
     public CvFile getCv(Long id, CustomUserDetails user) {
-        Application application = findVisible(id, user);
+        Application application = access.findVisible(id, user);
         return new CvFile(storageService.download(application.getCvFileKey()), "cv-" + id + ".pdf");
     }
 
     // ---------- helpers ----------
 
-    /** Un utilisateur sans accès reçoit un 404 (on ne révèle pas l'existence de la candidature). */
-    private Application findVisible(Long id, CustomUserDetails user) {
-        Application application = applicationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Application not found"));
-        boolean allowed = switch (user.getRole()) {
-            case ADMIN, HR -> true;
-            case MANAGER -> application.getJobOffer().getManager() != null
-                    && application.getJobOffer().getManager().getId().equals(user.getId());
-            case CANDIDATE -> application.getCandidate().getId().equals(user.getId());
-        };
-        if (!allowed) {
-            throw new ResourceNotFoundException("Application not found");
-        }
-        return application;
-    }
 
     private byte[] readPdf(MultipartFile file) {
         if (file == null || file.isEmpty()) {

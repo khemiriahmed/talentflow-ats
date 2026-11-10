@@ -1,0 +1,23 @@
+@if (rejected()) {
+  <p class="ended">
+    <app-icon name="x" />
+    <span>{{ message() }}</span>
+  </p>
+} @else {
+  <ol class="track" [attr.aria-label]="summary()">
+    @for (step of steps(); track step.stage; let i = $index) {
+      <li class="step" [class]="step.state" [attr.aria-current]="step.state === 'current' ? 'step' : null" [style.--i]="i">
+        <span class="node">
+          @if (step.state === 'done' || (step.state === 'current' && step.stage === 'HIRED')) {
+            <app-icon name="check" />
+          }
+        </span>
+        <span class="label">{{ step.label }}</span>
+        @if (step.state === 'done') {
+          <span class="visually-hidden">, terminée</span>
+        }
+      </li>
+    }
+  </ol>
+  <p class="message">{{ message() }}</p>
+}

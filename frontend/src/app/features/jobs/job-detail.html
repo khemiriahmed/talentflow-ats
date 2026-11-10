@@ -1,0 +1,78 @@
+<div class="page container">
+  @if (notFound()) {
+    <div class="state">
+      <h1>Cette offre n’est plus disponible</h1>
+      <p>Elle a peut-être été clôturée ou retirée. Consultez les offres actuellement ouvertes.</p>
+      <a class="btn btn-primary" routerLink="/offres">Voir toutes les offres</a>
+    </div>
+  } @else if (job.error()) {
+    <div class="state">
+      <h1>Impossible de charger l’offre</h1>
+      <p>Vérifiez votre connexion, puis réessayez.</p>
+      <button type="button" class="btn btn-outline" (click)="job.reload()">Réessayer</button>
+    </div>
+  } @else if (job.value(); as offer) {
+    <a class="back" routerLink="/offres">Toutes les offres</a>
+
+    <header class="head">
+      <h1>{{ offer.title }}</h1>
+      <ul class="meta">
+        @if (offer.location) {
+          <li><app-icon name="pin" />{{ offer.location }}</li>
+        }
+        <li><app-icon name="briefcase" />{{ contractLabel(offer) }}</li>
+        @if (offer.department) {
+          <li><app-icon name="building" />{{ offer.department }}</li>
+        }
+      </ul>
+    </header>
+
+    <div class="layout">
+      <div class="body">
+        <h2 class="visually-hidden">Description du poste</h2>
+        <div class="description">{{ offer.description }}</div>
+
+        <section id="postuler" class="apply" aria-labelledby="apply-title">
+          @if (closed()) {
+            <h2 id="apply-title">Candidatures closes</h2>
+            <p>La date limite était le {{ offer.deadline | date: 'd MMMM y' }}. Cette offre n’accepte plus de candidatures.</p>
+          } @else if (auth.isCandidate()) {
+            <app-apply-form [jobId]="offer.id" />
+          } @else if (auth.isStaff()) {
+            <h2 id="apply-title">Postuler à cette offre</h2>
+            <p class="notice">Vous êtes connecté avec un compte de l’équipe : seuls les comptes candidats peuvent postuler.</p>
+          } @else {
+            <h2 id="apply-title">Postuler à cette offre</h2>
+            <p>Créez un compte ou connectez-vous pour envoyer votre CV et suivre votre candidature.</p>
+            <div class="actions">
+              <a class="btn btn-primary" routerLink="/inscription" [queryParams]="{ returnUrl: returnUrl() }">Créer un compte</a>
+              <a class="btn btn-outline" routerLink="/connexion" [queryParams]="{ returnUrl: returnUrl() }">Se connecter</a>
+            </div>
+          }
+        </section>
+      </div>
+
+      <aside class="summary" aria-label="Résumé de l’offre">
+        <dl>
+          @if (offer.deadline) {
+            <div>
+              <dt>Candidatures jusqu’au</dt>
+              <dd><app-icon name="calendar" /> {{ offer.deadline | date: 'd MMMM y' }}</dd>
+            </div>
+          }
+          @if (salary(offer); as salaryText) {
+            <div>
+              <dt>Rémunération</dt>
+              <dd>{{ salaryText }}</dd>
+            </div>
+          }
+        </dl>
+        @if (!closed()) {
+          <a class="btn btn-primary" href="#postuler">Postuler</a>
+        }
+      </aside>
+    </div>
+  } @else {
+    <p class="status">Chargement de l’offre…</p>
+  }
+</div>

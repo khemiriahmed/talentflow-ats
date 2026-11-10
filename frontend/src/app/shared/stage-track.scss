@@ -1,0 +1,156 @@
+:host {
+  display: block;
+}
+
+.track {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+/* Trait qui relie cette étape à la précédente. */
+.step::before {
+  content: '';
+  position: absolute;
+  top: 0.6875rem;
+  right: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--line);
+  transform-origin: left center;
+}
+
+.step:first-child::before {
+  display: none;
+}
+
+.step.done::before,
+.step.current::before {
+  background: var(--accent);
+  animation: draw 0.5s ease-out both;
+  animation-delay: calc(var(--i) * 90ms);
+}
+
+.node {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 1.375rem;
+  height: 1.375rem;
+  border: 2px solid var(--line-strong);
+  border-radius: 50%;
+  background: var(--surface);
+  color: #fff;
+  font-size: 0.75rem;
+}
+
+.done .node {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.current .node {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+.current .node::after {
+  content: '';
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.current.step:last-child .node {
+  background: var(--accent);
+}
+
+.current.step:last-child .node::after {
+  display: none;
+}
+
+.current .label {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.done .label {
+  color: var(--ink);
+}
+
+.message {
+  margin: 0;
+  color: var(--ink);
+}
+
+.ended {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  color: var(--muted);
+}
+
+.ended app-icon {
+  color: var(--danger);
+}
+
+@keyframes draw {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (max-width: 40rem) {
+  .track {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .step {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 2.25rem;
+    text-align: left;
+    font-size: 0.9375rem;
+  }
+
+  .step::before {
+    top: auto;
+    right: auto;
+    bottom: 50%;
+    left: 0.6875rem;
+    width: 2px;
+    height: 100%;
+    transform-origin: center top;
+    margin-left: -1px;
+  }
+
+  @keyframes draw {
+    from {
+      transform: scaleY(0);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+}

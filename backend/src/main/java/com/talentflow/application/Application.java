@@ -6,9 +6,12 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "applications")
@@ -45,4 +48,11 @@ public class Application {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
+
+    /** Tags internes (visibles du staff uniquement). */
+    @ElementCollection
+    @CollectionTable(name = "application_tags", joinColumns = @JoinColumn(name = "application_id"))
+    @Column(name = "tag", nullable = false, length = 50)
+    @BatchSize(size = 100)
+    private Set<String> tags = new HashSet<>();
 }

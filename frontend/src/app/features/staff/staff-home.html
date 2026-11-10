@@ -1,0 +1,45 @@
+<section class="page container">
+  <h1>Bonjour {{ user()?.firstName }}</h1>
+  <p class="role">{{ roleLabel() }}</p>
+
+  @if (unread.value(); as notifications) {
+    <p class="unread">
+      @if (notifications.count === 0) {
+        Aucune notification non lue.
+      } @else {
+        {{ notifications.count }}
+        {{ notifications.count > 1 ? 'notifications non lues' : 'notification non lue' }}.
+      }
+    </p>
+  }
+
+  @if (stats.value(); as data) {
+    <h2>Recrutement des 90 derniers jours</h2>
+    <dl class="figures">
+      <div>
+        <dt>Candidatures reçues</dt>
+        <dd>{{ data.summary.totalApplications }}</dd>
+      </div>
+      <div>
+        <dt>Candidatures en cours</dt>
+        <dd>{{ data.summary.inProgress }}</dd>
+      </div>
+      <div>
+        <dt>Embauches</dt>
+        <dd>{{ data.summary.hired }}</dd>
+      </div>
+      <div>
+        <dt>Candidatures refusées</dt>
+        <dd>{{ data.summary.rejected }}</dd>
+      </div>
+      <div>
+        <dt>Offres ouvertes</dt>
+        <dd>{{ data.summary.openJobs }}</dd>
+      </div>
+    </dl>
+  } @else if (stats.error()) {
+    <p class="alert" role="alert">Les chiffres du recrutement sont momentanément indisponibles.</p>
+  }
+
+  <p class="soon">Cet espace réunira bientôt vos offres, vos candidatures et vos entretiens.</p>
+</section>
