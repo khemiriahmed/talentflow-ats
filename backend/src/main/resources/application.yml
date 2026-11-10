@@ -49,5 +49,10 @@ app:
     access-token-minutes: 15
     refresh-token-days: 7
   storage:
-    endpoint: ${STORAGE_ENDPOINT:http://localhost:9000}
+    # Vide = AWS S3 réel (credentials via la chaîne par défaut AWS). Renseigné = mock S3 / GCS interop.
+    endpoint: ${STORAGE_ENDPOINT:http://localhost:9090}
     bucket: ${STORAGE_BUCKET:ats-cv}
+    region: ${STORAGE_REGION:us-east-1}
+    access-key: ${STORAGE_ACCESS_KEY:test}
+    secret-key: ${STORAGE_SECRET_KEY:test}
+    path-style: ${STORAGE_PATH_STYLE:true}
