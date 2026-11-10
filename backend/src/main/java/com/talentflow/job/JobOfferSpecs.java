@@ -2,6 +2,7 @@ package com.talentflow.job;
 
 import org.springframework.data.jpa.domain.Specification;
 
+import java.time.LocalDate;
 import java.util.Locale;
 
 /**
@@ -19,6 +20,17 @@ public final class JobOfferSpecs {
 
     public static Specification<JobOffer> hasContractType(ContractType type) {
         return type == null ? null : (root, query, cb) -> cb.equal(root.get("contractType"), type);
+    }
+
+    public static Specification<JobOffer> managerIs(Long managerId) {
+        return (root, query, cb) -> cb.equal(root.get("manager").get("id"), managerId);
+    }
+
+    /** Date limite absente ou pas encore dépassée. */
+    public static Specification<JobOffer> openForApplications() {
+        return (root, query, cb) -> cb.or(
+                cb.isNull(root.get("deadline")),
+                cb.greaterThanOrEqualTo(root.get("deadline"), LocalDate.now()));
     }
 
     public static Specification<JobOffer> locationContains(String location) {

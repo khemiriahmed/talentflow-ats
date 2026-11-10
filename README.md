@@ -48,3 +48,28 @@ Comptes de démo (profil `dev` uniquement) :
 | ADMIN | admin@talentflow.local | Admin123! |
 | HR | hr@talentflow.local | Hr123456! |
 | MANAGER | manager@talentflow.local | Manager123! |
+
+## Offres et candidatures
+
+| Endpoint | Accès | Description |
+|---|---|---|
+| `GET /api/v1/jobs` | public | Offres publiées et ouvertes (`keyword`, `location`, `contractType`, `page`, `size`) |
+| `GET /api/v1/jobs/{id}` | public | Détail d'une offre publiée |
+| `GET /api/v1/jobs/manage[/{id}]` | RH, Admin, Manager | Toutes les offres (le Manager ne voit que les siennes) |
+| `POST /api/v1/jobs` | RH, Admin | Créer une offre (brouillon) |
+| `PUT /api/v1/jobs/{id}` | RH, Admin | Modifier |
+| `PATCH /api/v1/jobs/{id}/status` | RH, Admin | DRAFT, PUBLISHED, CLOSED, ARCHIVED |
+| `DELETE /api/v1/jobs/{id}` | RH, Admin | Supprimer (seulement sans candidature) |
+| `POST /api/v1/jobs/{id}/applications` | Candidat | Postuler (multipart : `cv` PDF 5 Mo max, `coverLetter`, `source`) |
+| `GET /api/v1/applications/mine` | Candidat | Mes candidatures |
+| `DELETE /api/v1/applications/{id}` | Candidat | Retirer ma candidature |
+| `GET /api/v1/applications` | RH, Admin, Manager | Liste filtrable (`jobOfferId`, `stage`, `q`) |
+| `GET /api/v1/applications/{id}` | selon rôle | Détail |
+| `GET /api/v1/applications/{id}/cv` | selon rôle | Télécharger le CV |
+
+## Stockage des CV
+
+`StorageService` (implémentation S3) :
+- Local : mock S3 du `docker-compose.yml` (`STORAGE_ENDPOINT=http://s3:9090`).
+- AWS : `STORAGE_ENDPOINT=` (vide), `STORAGE_REGION`, `STORAGE_BUCKET`, credentials par rôle IAM.
+- GCP : Google Cloud Storage en mode interopérabilité S3 (`STORAGE_ENDPOINT=https://storage.googleapis.com` + clés HMAC).
