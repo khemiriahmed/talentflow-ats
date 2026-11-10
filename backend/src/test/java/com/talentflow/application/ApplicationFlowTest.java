@@ -2,6 +2,7 @@ package com.talentflow.application;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.talentflow.TestEmailConfig;
 import com.talentflow.common.ResourceNotFoundException;
 import com.talentflow.storage.StorageService;
 import com.talentflow.user.Role;
@@ -45,7 +46,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Testcontainers
-@Import(ApplicationFlowTest.TestStorageConfig.class)
+@Import({ApplicationFlowTest.TestStorageConfig.class, TestEmailConfig.class})
 class ApplicationFlowTest {
 
     @Container

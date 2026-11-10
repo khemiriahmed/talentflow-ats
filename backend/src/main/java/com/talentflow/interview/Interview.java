@@ -48,6 +48,9 @@ public class Interview {
     @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
 
+    @Column(name = "reminder_sent_at")
+    private Instant reminderSentAt;
+
     @ManyToMany
     @JoinTable(name = "interview_participants",
             joinColumns = @JoinColumn(name = "interview_id"),

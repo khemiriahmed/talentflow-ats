@@ -5,4 +5,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface JobOfferRepository
         extends JpaRepository<JobOffer, Long>, JpaSpecificationExecutor<JobOffer> {
+
+    long countByStatus(JobStatus status);
 }

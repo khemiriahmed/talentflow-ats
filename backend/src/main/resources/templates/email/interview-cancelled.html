@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;background:#f1f5f9;">
+<div style="max-width:600px;margin:0 auto;background:#ffffff;">
+    <div th:replace="~{email/fragments :: header}"></div>
+    <div style="padding:24px;font-family:Arial,sans-serif;font-size:15px;color:#0f172a;line-height:1.5;">
+        <p>Bonjour <span th:text="${recipientName}">Prénom Nom</span>,</p>
+
+        <p th:if="${audienceCandidate}">Nous sommes au regret de vous informer que l'entretien prévu pour le poste
+            <strong th:text="${jobTitle}">Titre du poste</strong> le
+            <strong th:text="${when}">date</strong> est annulé.
+            Nous reviendrons vers vous pour convenir d'un nouveau créneau.</p>
+        <p th:unless="${audienceCandidate}">L'entretien avec
+            <strong th:text="${candidateName}">Candidat</strong> (poste
+            <strong th:text="${jobTitle}">Titre du poste</strong>) prévu le
+            <strong th:text="${when}">date</strong> est annulé.</p>
+
+        <p>Cordialement,<br>L'équipe recrutement</p>
+    </div>
+    <div th:replace="~{email/fragments :: footer}"></div>
+</div>
+</body>
+</html>

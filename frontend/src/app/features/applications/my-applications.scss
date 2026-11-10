@@ -1,0 +1,106 @@
+.page {
+  padding-block: 2.5rem 4rem;
+}
+
+h1 {
+  margin-bottom: 2rem;
+  font-size: var(--step-3);
+}
+
+.applications {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+}
+
+.applications > li {
+  border-bottom: 1px solid var(--line);
+}
+
+.application {
+  display: grid;
+  gap: 1.5rem;
+  padding: 2rem 0;
+}
+
+.application header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 1.5rem;
+}
+
+.application h2 {
+  font-size: var(--step-2);
+}
+
+.application h2 a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.application h2 a:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.sent {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+
+.actions {
+  display: flex;
+}
+
+/* Le bouton discret garde son retrait interne : on le compense pour aligner le texte. */
+.actions .btn {
+  margin-left: -1.125rem;
+}
+
+.empty,
+.alert {
+  max-width: 36rem;
+}
+
+.empty p {
+  color: var(--muted);
+}
+
+.confirm {
+  width: min(36rem, 100% - 2rem);
+  padding: 1.75rem;
+  border: 0;
+  border-radius: var(--radius-m);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 20px 50px rgb(20 33 61 / 0.3);
+}
+
+.confirm::backdrop {
+  background: rgb(20 33 61 / 0.45);
+}
+
+.confirm h2 {
+  margin-bottom: 0.75rem;
+  font-size: var(--step-1);
+}
+
+.dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.danger {
+  background: var(--danger);
+}
+
+.danger:hover {
+  background: #8f1e18;
+}

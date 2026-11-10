@@ -1,0 +1,114 @@
+.skip-link {
+  position: absolute;
+  top: -4rem;
+  left: 1rem;
+  z-index: 10;
+  padding: 0.75rem 1rem;
+  background: var(--ink);
+  color: #fff;
+  border-radius: 0 0 var(--radius-s) var(--radius-s);
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+.site-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 2rem;
+  padding-block: 0.625rem;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+.brand:hover {
+  color: var(--ink);
+}
+
+.mark {
+  color: var(--accent);
+}
+
+.nav {
+  display: flex;
+  flex: 1;
+  gap: 0.25rem;
+}
+
+.nav a {
+  padding: 0.625rem 0.75rem;
+  border-bottom: 2px solid transparent;
+  color: var(--ink);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.nav a:hover {
+  color: var(--accent);
+}
+
+.nav a.active {
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+
+.account {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.who {
+  margin-right: 0.25rem;
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+
+main {
+  min-height: 60vh;
+}
+
+main:focus {
+  outline: none;
+}
+
+.site-footer {
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+
+.site-footer p {
+  margin: 0;
+  padding-block: 1.5rem;
+}
+
+@media (max-width: 42rem) {
+  .nav {
+    order: 3;
+    flex-basis: 100%;
+    margin-inline: -0.75rem;
+  }
+
+  .who {
+    display: none;
+  }
+}

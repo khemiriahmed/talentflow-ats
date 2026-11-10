@@ -1,0 +1,99 @@
+<section class="page container">
+  <header class="page-head">
+    <h1>Offres ouvertes</h1>
+    <p class="lede">Choisissez une offre, envoyez votre CV et suivez l’avancement de votre candidature.</p>
+  </header>
+
+  <form class="filters" [formGroup]="form" (ngSubmit)="search()" role="search" aria-label="Filtrer les offres">
+    <div class="field">
+      <label for="filter-keyword">Mot-clé</label>
+      <input id="filter-keyword" class="input" type="search" formControlName="keyword"
+             placeholder="Java, comptabilité, design…" autocomplete="off" />
+    </div>
+    <div class="field">
+      <label for="filter-location">Ville</label>
+      <input id="filter-location" class="input" type="text" formControlName="location"
+             placeholder="Tunis, Paris, à distance…" autocomplete="off" />
+    </div>
+    <div class="field">
+      <label for="filter-contract">Contrat</label>
+      <select id="filter-contract" class="input" formControlName="contractType">
+        <option value="">Tous les contrats</option>
+        @for (contract of contracts; track contract.value) {
+          <option [value]="contract.value">{{ contract.label }}</option>
+        }
+      </select>
+    </div>
+    <button class="btn btn-primary" type="submit">Rechercher</button>
+  </form>
+
+  <div class="results" aria-live="polite" [attr.aria-busy]="jobs.isLoading()">
+    @if (jobs.error()) {
+      <div class="alert" role="alert">
+        <p>Impossible de charger les offres. Vérifiez votre connexion, puis réessayez.</p>
+        <button type="button" class="btn btn-outline" (click)="jobs.reload()">Réessayer</button>
+      </div>
+    } @else if (shown(); as result) {
+      <p class="count">
+        {{ result.page.totalElements }}
+        {{ result.page.totalElements > 1 ? 'offres' : 'offre' }}
+        {{ hasFilters() ? 'pour cette recherche' : 'ouvertes aux candidatures' }}
+      </p>
+
+      @if (result.content.length === 0) {
+        <div class="empty">
+          @if (hasFilters()) {
+            <p>Aucune offre ne correspond à votre recherche.</p>
+            <button type="button" class="btn btn-outline" (click)="clearFilters()">Effacer les filtres</button>
+          } @else {
+            <p>Aucune offre n’est ouverte pour le moment. Revenez bientôt.</p>
+          }
+        </div>
+      } @else {
+        <ul class="jobs" [class.stale]="jobs.isLoading()">
+          @for (job of result.content; track job.id) {
+            <li>
+              <a class="job" [routerLink]="['/offres', job.id]">
+                <div class="job-main">
+                  <h2>{{ job.title }}</h2>
+                  <ul class="meta">
+                    @if (job.location) {
+                      <li><app-icon name="pin" />{{ job.location }}</li>
+                    }
+                    <li><app-icon name="briefcase" />{{ contractLabel(job.contractType) }}</li>
+                    @if (job.department) {
+                      <li><app-icon name="building" />{{ job.department }}</li>
+                    }
+                  </ul>
+                </div>
+                <div class="job-side">
+                  @if (salary(job); as salaryText) {
+                    <span class="salary">{{ salaryText }}</span>
+                  }
+                  @if (job.deadline) {
+                    <span class="deadline" [class.soon]="soon(job)">
+                      Candidatures jusqu’au {{ job.deadline | date: 'd MMMM y' }}
+                    </span>
+                  }
+                </div>
+              </a>
+            </li>
+          }
+        </ul>
+
+        @if (result.page.totalPages > 1) {
+          <nav class="pager" aria-label="Pagination des offres">
+            <button type="button" class="btn btn-outline" [disabled]="result.page.number === 0"
+                    (click)="goTo(result.page.number - 1)">Page précédente</button>
+            <span>Page {{ result.page.number + 1 }} sur {{ result.page.totalPages }}</span>
+            <button type="button" class="btn btn-outline"
+                    [disabled]="result.page.number + 1 >= result.page.totalPages"
+                    (click)="goTo(result.page.number + 1)">Page suivante</button>
+          </nav>
+        }
+      }
+    } @else {
+      <p class="status">Chargement des offres…</p>
+    }
+  </div>
+</section>

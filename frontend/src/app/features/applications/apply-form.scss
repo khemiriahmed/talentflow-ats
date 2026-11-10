@@ -1,0 +1,95 @@
+:host {
+  display: block;
+}
+
+h2 {
+  margin-bottom: 0.75rem;
+  font-size: var(--step-2);
+}
+
+form {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.dropzone {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 1.25rem;
+  border: 2px dashed var(--line-strong);
+  border-radius: var(--radius-m);
+  background: var(--surface);
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s;
+}
+
+.dropzone:hover,
+.dropzone.over {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.dropzone.invalid {
+  border-color: var(--danger);
+}
+
+.dropzone:focus-within {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+}
+
+/* L'input couvre toute la zone : cliquable, focalisable au clavier, mais invisible. */
+.dropzone input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.file-name {
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.file-size {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.change {
+  margin-left: auto;
+  color: var(--accent);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.success {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius-m);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.success app-icon {
+  margin-top: 0.15rem;
+  font-size: 1.5rem;
+}
+
+.success h2 {
+  margin-bottom: 0.25rem;
+  font-size: var(--step-1);
+}
+
+.success p {
+  margin: 0;
+  color: var(--ink);
+}

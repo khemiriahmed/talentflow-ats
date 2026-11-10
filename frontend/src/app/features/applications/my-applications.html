@@ -1,0 +1,63 @@
+<section class="page container">
+  <h1>Mes candidatures</h1>
+
+  @if (applications.error()) {
+    <div class="alert" role="alert">
+      <p>Impossible de charger vos candidatures. Vérifiez votre connexion, puis réessayez.</p>
+      <button type="button" class="btn btn-outline" (click)="applications.reload()">Réessayer</button>
+    </div>
+  } @else if (applications.value(); as result) {
+    @if (result.content.length === 0) {
+      <div class="empty">
+        <p>Vous n’avez pas encore postulé. Parcourez les offres ouvertes pour envoyer votre première candidature.</p>
+        <a class="btn btn-primary" routerLink="/offres">Voir les offres</a>
+      </div>
+    } @else {
+      <ul class="applications">
+        @for (application of result.content; track application.id) {
+          <li>
+            <article class="application" [attr.aria-labelledby]="'app-title-' + application.id">
+              <header>
+                <h2 [id]="'app-title-' + application.id">
+                  <a [routerLink]="['/offres', application.jobOfferId]">{{ application.jobTitle }}</a>
+                </h2>
+                <p class="sent">Envoyée le {{ application.createdAt | date: 'd MMMM y' }}</p>
+              </header>
+
+              <app-stage-track [stage]="application.currentStage" />
+
+              @if (application.currentStage !== 'HIRED') {
+                <div class="actions">
+                  <button type="button" class="btn btn-quiet btn-danger" (click)="askWithdraw(application)">
+                    Retirer ma candidature
+                  </button>
+                </div>
+              }
+            </article>
+          </li>
+        }
+      </ul>
+    }
+  } @else {
+    <p class="status">Chargement de vos candidatures…</p>
+  }
+</section>
+
+<dialog #confirmDialog class="confirm" aria-labelledby="confirm-title" (close)="pending.set(null)">
+  <h2 id="confirm-title">Retirer cette candidature ?</h2>
+  @if (pending(); as application) {
+    <p>
+      Votre candidature pour <strong>{{ application.jobTitle }}</strong> et le CV associé seront supprimés.
+      Vous pourrez postuler de nouveau tant que l’offre est ouverte.
+    </p>
+  }
+  @if (withdrawError(); as message) {
+    <p class="alert" role="alert">{{ message }}</p>
+  }
+  <div class="dialog-actions">
+    <button type="button" class="btn btn-outline" (click)="cancelWithdraw()">Garder ma candidature</button>
+    <button type="button" class="btn btn-primary danger" [disabled]="withdrawing()" (click)="confirmWithdraw()">
+      {{ withdrawing() ? 'Suppression…' : 'Retirer ma candidature' }}
+    </button>
+  </div>
+</dialog>

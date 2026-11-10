@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.Instant;
+
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
@@ -53,10 +55,14 @@ public class ApplicationController {
     public Page<ApplicationDto> list(@RequestParam(required = false) Long jobOfferId,
                                      @RequestParam(required = false) Stage stage,
                                      @RequestParam(required = false) String q,
+                                     @RequestParam(required = false) String tag,
+                                     @RequestParam(required = false) Instant from,
+                                     @RequestParam(required = false) Instant to,
                                      @RequestParam(defaultValue = "0") int page,
                                      @RequestParam(defaultValue = "20") int size,
                                      @AuthenticationPrincipal CustomUserDetails user) {
-        return applicationService.list(user, jobOfferId, stage, q, page, size);
+        ApplicationFilter filter = new ApplicationFilter(jobOfferId, stage, q, tag, from, to);
+        return applicationService.list(user, filter, page, size);
     }
 
     @GetMapping("/applications/{id}")

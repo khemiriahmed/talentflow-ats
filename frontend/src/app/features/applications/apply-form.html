@@ -1,0 +1,77 @@
+@if (done()) {
+  <div class="success" role="status">
+    <app-icon name="check" />
+    <div>
+      <h2>Candidature envoyée</h2>
+      <p>
+        Vous allez recevoir un e-mail de confirmation. Suivez l’avancement depuis
+        <a routerLink="/mes-candidatures">Mes candidatures</a>.
+      </p>
+    </div>
+  </div>
+} @else {
+  <h2 id="apply-title">Postuler à cette offre</h2>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="field">
+      <span class="label" id="cv-label">CV</span>
+      <label
+        class="dropzone"
+        [class.over]="dragging()"
+        [class.invalid]="fileError()"
+        (dragover)="onDragOver($event)"
+        (dragleave)="dragging.set(false)"
+        (drop)="onDrop($event)"
+      >
+        <input
+          type="file"
+          accept="application/pdf,.pdf"
+          aria-labelledby="cv-label"
+          aria-describedby="cv-hint"
+          [attr.aria-invalid]="fileError() ? 'true' : null"
+          (change)="onPick($event)"
+        />
+        @if (file(); as chosen) {
+          <app-icon name="file" />
+          <span class="file-name">{{ chosen.name }}</span>
+          <span class="file-size">{{ formatSize(chosen.size) }}</span>
+          <span class="change">Changer de fichier</span>
+        } @else {
+          <app-icon name="upload" />
+          <span><strong>Choisissez un fichier</strong> ou déposez-le ici</span>
+        }
+      </label>
+      <p id="cv-hint" class="hint">PDF uniquement, 5 Mo maximum.</p>
+      @if (fileError(); as message) {
+        <p class="error" role="alert">{{ message }}</p>
+      }
+    </div>
+
+    <div class="field">
+      <label for="cover-letter">Lettre de motivation <span class="optional">(facultatif)</span></label>
+      <textarea id="cover-letter" class="input" rows="6" formControlName="coverLetter"
+                [attr.maxlength]="maxCoverLetter"></textarea>
+      <p class="hint">{{ coverLength().length }} / 5 000 caractères</p>
+    </div>
+
+    <div class="field">
+      <label for="source">Comment avez-vous connu cette offre ? <span class="optional">(facultatif)</span></label>
+      <select id="source" class="input" formControlName="source">
+        <option value="">Je préfère ne pas répondre</option>
+        @for (option of sources; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+
+    @if (error(); as message) {
+      <p class="alert" role="alert">{{ message }}</p>
+    }
+
+    <div>
+      <button class="btn btn-primary" type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Envoi en cours…' : 'Envoyer ma candidature' }}
+      </button>
+    </div>
+  </form>
+}

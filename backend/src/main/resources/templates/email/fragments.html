@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="header"
+     style="background:#0f172a;color:#ffffff;padding:16px 24px;font-family:Arial,sans-serif;font-size:18px;font-weight:bold;">
+    TalentFlow
+</div>
+
+<div th:fragment="footer"
+     style="padding:16px 24px;color:#64748b;font-family:Arial,sans-serif;font-size:12px;">
+    Cet email a été envoyé automatiquement, merci de ne pas y répondre.
+</div>
+
+<!-- Détails d'un entretien : variables when, durationMin, modeLabel, location, locationIsUrl -->
+<table th:fragment="interviewDetails" role="presentation"
+       style="border-collapse:collapse;margin:16px 0;font-family:Arial,sans-serif;font-size:15px;color:#0f172a;">
+    <tr>
+        <td style="padding:4px 16px 4px 0;color:#64748b;">Date</td>
+        <td style="padding:4px 0;"><strong th:text="${when}">lundi 10 novembre 2026 à 14h00</strong></td>
+    </tr>
+    <tr>
+        <td style="padding:4px 16px 4px 0;color:#64748b;">Durée</td>
+        <td style="padding:4px 0;"><span th:text="${durationMin}">60</span> minutes</td>
+    </tr>
+    <tr>
+        <td style="padding:4px 16px 4px 0;color:#64748b;">Format</td>
+        <td style="padding:4px 0;" th:text="${modeLabel}">En ligne</td>
+    </tr>
+    <tr th:if="${location != null and !#strings.isEmpty(location)}">
+        <td style="padding:4px 16px 4px 0;color:#64748b;">Lieu / lien</td>
+        <td style="padding:4px 0;">
+            <a th:if="${locationIsUrl}" th:href="${location}" th:text="${location}">lien</a>
+            <span th:unless="${locationIsUrl}" th:text="${location}">adresse</span>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

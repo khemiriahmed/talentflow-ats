@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;background:#f1f5f9;">
+<div style="max-width:600px;margin:0 auto;background:#ffffff;">
+    <div th:replace="~{email/fragments :: header}"></div>
+    <div style="padding:24px;font-family:Arial,sans-serif;font-size:15px;color:#0f172a;line-height:1.5;">
+        <p>Bonjour <span th:text="${candidateName}">Prénom Nom</span>,</p>
+        <p>Nous avons bien reçu votre candidature pour le poste
+            <strong th:text="${jobTitle}">Titre du poste</strong>.
+            Notre équipe l'étudie et reviendra vers vous rapidement.</p>
+        <p>Vous pouvez suivre son avancement ici :
+            <a th:href="${appUrl}" th:text="${appUrl}">lien</a></p>
+        <p>Cordialement,<br>L'équipe recrutement</p>
+    </div>
+    <div th:replace="~{email/fragments :: footer}"></div>
+</div>
+</body>
+</html>
