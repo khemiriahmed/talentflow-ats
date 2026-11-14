@@ -1,0 +1,12 @@
+<div class="container">
+  <nav class="subnav" aria-label="Espace équipe">
+    @if (canSeeDashboard()) {
+      <a routerLink="/equipe/tableau-de-bord" routerLinkActive="active">Tableau de bord</a>
+    }
+    <a routerLink="/equipe/offres" routerLinkActive="active">Offres</a>
+    <a routerLink="/equipe/candidatures" routerLinkActive="active">Candidatures</a>
+    <a routerLink="/equipe/pipeline" routerLinkActive="active">Pipeline</a>
+    <a routerLink="/equipe/entretiens" routerLinkActive="active">Entretiens</a>
+  </nav>
+</div>
+<router-outlet />

@@ -1,0 +1,93 @@
+<section class="page container">
+  <header class="page-head">
+    <div>
+      <h1>Calendrier des entretiens</h1>
+      <p class="lede">{{ rangeLabel() }}</p>
+    </div>
+    <div class="inline">
+      <button type="button" class="btn btn-outline small" (click)="shift(-1)">Période précédente</button>
+      <button type="button" class="btn btn-quiet small" (click)="goToday()">Aujourd’hui</button>
+      <button type="button" class="btn btn-outline small" (click)="shift(1)">Période suivante</button>
+    </div>
+  </header>
+
+  <div class="inline ranges" role="group" aria-label="Durée affichée">
+    @for (days of [7, 14, 30, 60, 90]; track days) {
+      <button
+        type="button"
+        class="btn small"
+        [class.btn-primary]="rangeDays() === days"
+        [class.btn-outline]="rangeDays() !== days"
+        (click)="changeRange(days)"
+      >
+        {{ days }} jours
+      </button>
+    }
+  </div>
+
+  @if (error(); as message) {
+    <p class="alert" role="alert">{{ message }}</p>
+  }
+
+  @if (interviews.error()) {
+    <div class="alert" role="alert">
+      <p>Impossible de charger le calendrier.</p>
+      <button type="button" class="btn btn-outline" (click)="interviews.reload()">Réessayer</button>
+    </div>
+  } @else if (interviews.value(); as list) {
+    @if (list.length === 0) {
+      <div class="empty-state">
+        <p>Aucun entretien sur cette période.</p>
+      </div>
+    } @else {
+      <div class="calendar">
+        @for (day of days(); track day.date) {
+          <section class="day">
+            <header>
+              <h2>{{ day.date | date: 'EEEE d MMMM' }}</h2>
+              <span class="badge neutral">{{ day.interviews.length }}</span>
+            </header>
+            <ul>
+              @for (interview of day.interviews; track interview.id) {
+                <li class="card slot" [class.cancelled]="interview.status === 'CANCELLED'">
+                  <div class="time">
+                    <strong>{{ interview.startAt | date: 'HH:mm' }}</strong>
+                    <span class="hint">{{ interview.durationMin }} min</span>
+                  </div>
+                  <div class="body">
+                    <div class="section-head">
+                      <div>
+                        <strong>{{ interview.candidateName }}</strong>
+                        <p class="hint">{{ interview.jobTitle }}</p>
+                      </div>
+                      <span [class]="interview.status === 'CANCELLED' ? 'badge danger' : 'badge'">
+                        {{ statusLabels[interview.status] }}
+                      </span>
+                    </div>
+                    <p class="hint">
+                      {{ modeLabels[interview.mode] }}
+                      @if (interview.locationOrLink) {
+                        · {{ interview.locationOrLink }}
+                      }
+                      · {{ interview.participants.map(p => p.name).join(', ') || 'Aucun participant' }}
+                    </p>
+                    <div class="inline">
+                      <a class="btn btn-outline small" [routerLink]="['/equipe/candidatures', interview.applicationId]">
+                        Ouvrir le dossier
+                      </a>
+                      @if (canManage() && interview.status === 'SCHEDULED') {
+                        <button type="button" class="btn btn-danger small" (click)="cancel(interview)">Annuler</button>
+                      }
+                    </div>
+                  </div>
+                </li>
+              }
+            </ul>
+          </section>
+        }
+      </div>
+    }
+  } @else {
+    <p class="status">Chargement du calendrier…</p>
+  }
+</section>
