@@ -1,0 +1,117 @@
+<section class="page container">
+  <header class="page-head">
+    <div>
+      <h1>Offres d’emploi</h1>
+      <p class="lede">Créez, publiez et pilotez vos offres. Un manager ne voit que les offres dont il est responsable.</p>
+    </div>
+    @if (canManage()) {
+      <a class="btn btn-primary" routerLink="/equipe/offres/nouvelle">Nouvelle offre</a>
+    }
+  </header>
+
+  <form class="toolbar" (ngSubmit)="search()">
+    <div class="field">
+      <label for="keyword">Mot-clé</label>
+      <input id="keyword" class="input" type="search" [ngModel]="keyword()" (ngModelChange)="keyword.set($event)" name="keyword" />
+    </div>
+    <div class="field">
+      <label for="location">Lieu</label>
+      <input id="location" class="input" type="text" [ngModel]="location()" (ngModelChange)="location.set($event)" name="location" />
+    </div>
+    <div class="field">
+      <label for="contract">Contrat</label>
+      <select id="contract" class="input" [ngModel]="contractType()" (ngModelChange)="contractType.set($event)" name="contract">
+        <option value="">Tous</option>
+        @for (contract of contracts; track contract.value) {
+          <option [value]="contract.value">{{ contract.label }}</option>
+        }
+      </select>
+    </div>
+    <div class="field">
+      <label for="status">Statut</label>
+      <select id="status" class="input" [ngModel]="status()" (ngModelChange)="status.set($event)" name="status">
+        <option value="">Tous</option>
+        @for (option of statuses; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+    <div class="actions">
+      <button class="btn btn-primary" type="submit">Filtrer</button>
+    </div>
+  </form>
+
+  @if (error(); as message) {
+    <p class="alert" role="alert">{{ message }}</p>
+  }
+
+  @if (jobs.error()) {
+    <div class="alert" role="alert">
+      <p>Impossible de charger les offres.</p>
+      <button type="button" class="btn btn-outline" (click)="jobs.reload()">Réessayer</button>
+    </div>
+  } @else if (jobs.value(); as result) {
+    @if (result.content.length === 0) {
+      <div class="empty-state">
+        <p>Aucune offre ne correspond à ces critères.</p>
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Offre</th>
+              <th>Contrat</th>
+              <th>Statut</th>
+              <th>Échéance</th>
+              <th>Créée le</th>
+              <th class="right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (job of result.content; track job.id) {
+              <tr>
+                <td>
+                  <strong>{{ job.title }}</strong>
+                  <p class="hint">{{ job.location || 'Lieu non précisé' }} · {{ job.department || 'Département non précisé' }}</p>
+                </td>
+                <td>{{ contractLabels[job.contractType] }}<br /><span class="hint">{{ salary(job) }}</span></td>
+                <td><span [class]="statusClass(job.status)">{{ statusLabels[job.status] }}</span></td>
+                <td>{{ job.deadline ? (job.deadline | date: 'd MMM y') : '—' }}</td>
+                <td>{{ job.createdAt | date: 'd MMM y' }}</td>
+                <td>
+                  <div class="actions">
+                    <a class="btn btn-quiet small" [routerLink]="['/offres', job.id]">Voir</a>
+                    @if (canManage()) {
+                      <a class="btn btn-outline small" [routerLink]="['/equipe/offres', job.id, 'modifier']">Modifier</a>
+                      @if (job.status === 'DRAFT' || job.status === 'CLOSED') {
+                        <button type="button" class="btn btn-outline small" [disabled]="busy() === job.id" (click)="publish(job)">Publier</button>
+                      }
+                      @if (job.status === 'PUBLISHED') {
+                        <button type="button" class="btn btn-outline small" [disabled]="busy() === job.id" (click)="close(job)">Clôturer</button>
+                      }
+                      @if (job.status !== 'ARCHIVED') {
+                        <button type="button" class="btn btn-quiet small" [disabled]="busy() === job.id" (click)="archive(job)">Archiver</button>
+                        <button type="button" class="btn btn-danger small" [disabled]="busy() === job.id" (click)="remove(job)">Supprimer</button>
+                      }
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (result.page.totalPages > 1) {
+        <nav class="pager" aria-label="Pagination des offres">
+          <button type="button" class="btn btn-outline" [disabled]="result.page.number === 0" (click)="goTo(result.page.number - 1)">Précédent</button>
+          <span>Page {{ result.page.number + 1 }} sur {{ result.page.totalPages }} · {{ result.page.totalElements }} offres</span>
+          <button type="button" class="btn btn-outline" [disabled]="result.page.number + 1 >= result.page.totalPages" (click)="goTo(result.page.number + 1)">Suivant</button>
+        </nav>
+      }
+    }
+  } @else {
+    <p class="status">Chargement des offres…</p>
+  }
+</section>

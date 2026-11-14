@@ -1,0 +1,22 @@
+.container-wide {
+  width: min(96rem, 100% - 2rem);
+  margin-inline: auto;
+}
+
+.kanban {
+  grid-auto-columns: minmax(16rem, 1fr);
+}
+
+.kanban-card[draggable='true'] {
+  cursor: grab;
+}
+
+.small-link {
+  display: inline-block;
+  margin-top: 0.35rem;
+  font-size: 0.82rem;
+}
+
+.rejected {
+  margin-top: 1.5rem;
+}

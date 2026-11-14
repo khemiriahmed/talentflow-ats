@@ -1,0 +1,98 @@
+<section class="page container-wide">
+  <header class="page-head">
+    <div>
+      <h1>Pipeline de recrutement</h1>
+      <p class="lede">
+        @if (canMove()) {
+          Glissez-déposez une candidature pour la faire avancer dans le parcours.
+        } @else {
+          Vue en lecture seule. Les équipes RH déplacent les candidatures.
+        }
+      </p>
+    </div>
+  </header>
+
+  <form class="toolbar" (ngSubmit)="refresh()">
+    <div class="field">
+      <label for="job">Offre</label>
+      <select id="job" class="input" [ngModel]="jobOfferId()" (ngModelChange)="jobOfferId.set($event)" name="job">
+        <option value="">Toutes les offres</option>
+        @for (job of jobs.value()?.content ?? []; track job.id) {
+          <option [value]="job.id">{{ job.title }}</option>
+        }
+      </select>
+    </div>
+    <div class="field">
+      <label for="q">Candidat</label>
+      <input id="q" class="input" type="search" [ngModel]="keyword()" (ngModelChange)="keyword.set($event)" name="q" />
+    </div>
+    <div class="actions">
+      <button class="btn btn-primary" type="submit">Actualiser</button>
+    </div>
+  </form>
+
+  @if (error(); as message) {
+    <p class="alert" role="alert">{{ message }}</p>
+  }
+
+  @if (applications.error()) {
+    <div class="alert" role="alert">
+      <p>Impossible de charger le pipeline.</p>
+      <button type="button" class="btn btn-outline" (click)="applications.reload()">Réessayer</button>
+    </div>
+  } @else if (applications.value()) {
+    <div class="kanban">
+      @for (stage of stages; track stage) {
+        <section
+          class="kanban-col"
+          [class.over]="overStage() === stage"
+          (dragover)="allowDrop($event, stage)"
+          (dragleave)="overStage.set(null)"
+          (drop)="drop($event, stage)"
+        >
+          <header>
+            <span>{{ stageLabels[stage] }}</span>
+            <span class="badge neutral">{{ grouped().get(stage)?.length ?? 0 }}</span>
+          </header>
+          <div class="cards">
+            @for (application of grouped().get(stage) ?? []; track application.id) {
+              <article
+                class="kanban-card"
+                [class.dragging]="dragging() === application.id"
+                [draggable]="canMove()"
+                (dragstart)="dragStart($event, application)"
+                (dragend)="dragEnd()"
+              >
+                <strong>{{ application.candidateName }}</strong>
+                <p>{{ application.jobTitle }}</p>
+                <a class="small-link" [routerLink]="['/equipe/candidatures', application.id]">Ouvrir le dossier</a>
+              </article>
+            } @empty {
+              <p class="hint">Aucune candidature.</p>
+            }
+          </div>
+        </section>
+      }
+    </div>
+
+    @if (rejected().length > 0) {
+      <section class="card rejected">
+        <div class="section-head">
+          <h2>Candidatures non retenues</h2>
+          <span class="badge neutral">{{ rejected().length }}</span>
+        </div>
+        <ul class="chips">
+          @for (application of rejected(); track application.id) {
+            <li class="chip">
+              <a [routerLink]="['/equipe/candidatures', application.id]">
+                {{ application.candidateName }} · {{ application.jobTitle }}
+              </a>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+  } @else {
+    <p class="status">Chargement du pipeline…</p>
+  }
+</section>
