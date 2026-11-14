@@ -4,6 +4,9 @@
   @if (expired()) {
     <p class="notice" role="status">Votre session a expiré. Reconnectez-vous pour continuer.</p>
   }
+  @if (reset()) {
+    <p class="notice" role="status">Votre mot de passe a été modifié. Vous pouvez maintenant vous connecter.</p>
+  }
 
   <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
     <div class="field">
@@ -42,6 +45,9 @@
     </button>
   </form>
 
+  <p class="alt">
+    <a routerLink="/mot-de-passe-oublie">Mot de passe oublié ?</a>
+  </p>
   <p class="alt">
     Pas encore de compte ?
     <a routerLink="/inscription" [queryParams]="returnUrl() ? { returnUrl: returnUrl() } : null">Créer un compte</a>

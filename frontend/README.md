@@ -27,6 +27,17 @@ src/app/
     staff/         espace équipe (résumé du recrutement)
 ```
 
+## Écrans compte, équipe et administration
+
+- `features/account/` : profil, vérification email, suppression RGPD du compte candidat.
+- `features/notifications/` : centre de notifications (lu / non lu).
+- `features/staff/` : tableau de bord, gestion des offres, formulaire d'offre, candidatures,
+  dossier candidat (CV, notes, tags, entretiens, feedback), pipeline kanban, calendrier des entretiens.
+- `features/admin/` : gestion des utilisateurs et journal d'audit.
+- `features/auth/` : mot de passe oublié, réinitialisation et vérification d'email.
+
+Le build Angular 22 nécessite Node.js `^22.22.3`, `^24.15.0` ou `>=26.0.0`.
+
 ## Choix notables
 
 - **Session** : le jeton d'accès reste en mémoire ; seul le jeton de renouvellement est conservé

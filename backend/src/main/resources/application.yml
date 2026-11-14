@@ -52,6 +52,12 @@ management:
         enabled: true
 
 app:
+  auth:
+    # En production, passer à true : la connexion exige alors une adresse email vérifiée.
+    require-email-verification: ${REQUIRE_EMAIL_VERIFICATION:false}
+  rate-limit:
+    auth:
+      max-requests: ${AUTH_RATE_LIMIT_PER_MINUTE:100}
   mail:
     from: ${MAIL_FROM:no-reply@talentflow.local}
     base-url: ${APP_BASE_URL:http://localhost:4200}

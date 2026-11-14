@@ -1,0 +1,114 @@
+<section class="page container">
+  <header class="page-head">
+    <div>
+      <h1>Candidatures</h1>
+      <p class="lede">Recherchez, filtrez et ouvrez les dossiers de candidature.</p>
+    </div>
+    @if (canExport()) {
+      <button type="button" class="btn btn-outline" [disabled]="exporting()" (click)="exportCsv()">
+        {{ exporting() ? 'Export…' : 'Exporter en CSV' }}
+      </button>
+    }
+  </header>
+
+  <form class="toolbar" (ngSubmit)="search()">
+    <div class="field">
+      <label for="q">Recherche</label>
+      <input id="q" class="input" type="search" placeholder="Nom, email…" [ngModel]="keyword()" (ngModelChange)="keyword.set($event)" name="q" />
+    </div>
+    <div class="field">
+      <label for="job">Offre</label>
+      <select id="job" class="input" [ngModel]="jobOfferId()" (ngModelChange)="jobOfferId.set($event)" name="job">
+        <option value="">Toutes les offres</option>
+        @for (job of jobs.value()?.content ?? []; track job.id) {
+          <option [value]="job.id">{{ job.title }}</option>
+        }
+      </select>
+    </div>
+    <div class="field">
+      <label for="stage">Étape</label>
+      <select id="stage" class="input" [ngModel]="stage()" (ngModelChange)="stage.set($event)" name="stage">
+        <option value="">Toutes</option>
+        @for (option of stages; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+    <div class="field">
+      <label for="tag">Étiquette</label>
+      <input id="tag" class="input" type="text" placeholder="ex. senior" [ngModel]="tag()" (ngModelChange)="tag.set($event)" name="tag" />
+    </div>
+    <div class="actions">
+      <button class="btn btn-primary" type="submit">Filtrer</button>
+    </div>
+  </form>
+
+  @if (error(); as message) {
+    <p class="alert" role="alert">{{ message }}</p>
+  }
+
+  @if (applications.error()) {
+    <div class="alert" role="alert">
+      <p>Impossible de charger les candidatures.</p>
+      <button type="button" class="btn btn-outline" (click)="applications.reload()">Réessayer</button>
+    </div>
+  } @else if (applications.value(); as result) {
+    @if (result.content.length === 0) {
+      <div class="empty-state">
+        <p>Aucune candidature ne correspond à ces critères.</p>
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Candidat</th>
+              <th>Offre</th>
+              <th>Étape</th>
+              <th>Tags</th>
+              <th>Reçue le</th>
+              <th class="right">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (application of result.content; track application.id) {
+              <tr>
+                <td>
+                  <strong>{{ application.candidateName }}</strong>
+                  <p class="hint">{{ application.candidateEmail }}</p>
+                </td>
+                <td>{{ application.jobTitle }}</td>
+                <td><span class="badge">{{ stageLabels[application.currentStage] }}</span></td>
+                <td>
+                  <ul class="chips">
+                    @for (item of application.tags ?? []; track item) {
+                      <li class="chip">{{ item }}</li>
+                    } @empty {
+                      <li class="hint">—</li>
+                    }
+                  </ul>
+                </td>
+                <td>{{ application.createdAt | date: 'd MMM y' }}</td>
+                <td class="right">
+                  <a class="btn btn-outline small" [routerLink]="['/equipe/candidatures', application.id]">
+                    Ouvrir
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (result.page.totalPages > 1) {
+        <nav class="pager" aria-label="Pagination des candidatures">
+          <button type="button" class="btn btn-outline" [disabled]="result.page.number === 0" (click)="goTo(result.page.number - 1)">Précédent</button>
+          <span>Page {{ result.page.number + 1 }} sur {{ result.page.totalPages }} · {{ result.page.totalElements }} candidatures</span>
+          <button type="button" class="btn btn-outline" [disabled]="result.page.number + 1 >= result.page.totalPages" (click)="goTo(result.page.number + 1)">Suivant</button>
+        </nav>
+      }
+    }
+  } @else {
+    <p class="status">Chargement des candidatures…</p>
+  }
+</section>

@@ -1,0 +1,284 @@
+<section class="page container">
+  @if (application.error()) {
+    <div class="alert" role="alert">
+      <p>Cette candidature est introuvable ou ne vous est pas accessible.</p>
+      <a class="btn btn-outline" routerLink="/equipe/candidatures">Retour aux candidatures</a>
+    </div>
+  } @else if (application.value(); as data) {
+    <header class="page-head">
+      <div>
+        <p class="back"><a routerLink="/equipe/candidatures">← Candidatures</a></p>
+        <h1>{{ data.candidateName }}</h1>
+        <p class="lede">
+          {{ data.jobTitle }} · candidature reçue le {{ data.createdAt | date: 'd MMMM y' }}
+        </p>
+      </div>
+      <div class="inline">
+        <span class="badge">{{ stageLabels[data.currentStage] }}</span>
+        <button type="button" class="btn btn-outline" [disabled]="openingCv()" (click)="openCv()">
+          {{ openingCv() ? 'Ouverture…' : 'Voir le CV' }}
+        </button>
+      </div>
+    </header>
+
+    @if (actionError(); as message) {
+      <p class="alert" role="alert">{{ message }}</p>
+    }
+    @if (saved(); as message) {
+      <p class="notice" role="status">{{ message }}</p>
+    }
+
+    <div class="split detail">
+      <div class="main">
+        <section class="card">
+          <div class="section-head">
+            <h2>Parcours</h2>
+          </div>
+          @if (history.value(); as entries) {
+            @if (entries.length === 0) {
+              <p class="hint">Aucun changement d’étape enregistré.</p>
+            } @else {
+              <ol class="timeline">
+                @for (entry of entries; track entry.id) {
+                  <li>
+                    <strong>{{ stageLabels[entry.toStage] }}</strong>
+                    <p class="hint">
+                      {{ entry.changedAt | date: 'd MMM y à HH:mm' }} · {{ entry.changedByName }}
+                    </p>
+                    @if (entry.reason) {
+                      <p>{{ entry.reason }}</p>
+                    }
+                  </li>
+                }
+              </ol>
+            }
+          } @else {
+            <p class="status">Chargement…</p>
+          }
+        </section>
+
+        <section class="card">
+          <div class="section-head">
+            <h2>Entretiens</h2>
+          </div>
+          @if (interviews.value(); as list) {
+            @if (list.length === 0) {
+              <p class="hint">Aucun entretien planifié.</p>
+            } @else {
+              <ul class="interviews">
+                @for (interview of list; track interview.id) {
+                  <li class="interview">
+                    <div class="section-head">
+                      <div>
+                        <strong>{{ interview.startAt | date: 'EEEE d MMMM y à HH:mm' }}</strong>
+                        <p class="hint">
+                          {{ interview.durationMin }} min · {{ modeLabels[interview.mode] }}
+                          @if (interview.locationOrLink) {
+                            · {{ interview.locationOrLink }}
+                          }
+                        </p>
+                      </div>
+                      <span [class]="interview.status === 'CANCELLED' ? 'badge danger' : 'badge'">
+                        {{ interviewStatusLabels[interview.status] }}
+                      </span>
+                    </div>
+                    <p class="hint">
+                      Participants :
+                      {{ interview.participants.length ? interview.participants.map(p => p.name).join(', ') : '—' }}
+                    </p>
+                    <div class="inline">
+                      @if (canEvaluate() && interview.status !== 'CANCELLED') {
+                        <button type="button" class="btn btn-outline small" (click)="openFeedback(interview)">
+                          {{ feedbackOpen() === interview.id ? 'Fermer' : (feedbackByInterview()[interview.id] ? 'Modifier mon avis' : 'Saisir mon avis') }}
+                        </button>
+                      }
+                      @if (canManage() && interview.status === 'SCHEDULED') {
+                        <button type="button" class="btn btn-danger small" (click)="cancelInterview(interview)">Annuler</button>
+                      }
+                    </div>
+
+                    @if (feedbackOpen() === interview.id) {
+                      <div class="feedback">
+                        @if (feedbackByInterview()[interview.id]; as feedback) {
+                          <p class="hint">
+                            Avis déjà enregistré par {{ feedback.authorName }} ·
+                            {{ recommendationLabels[feedback.recommendation] }} ·
+                            {{ feedback.rating }}/5
+                          </p>
+                        }
+                        <form class="stack" [formGroup]="feedbackForm" (ngSubmit)="submitFeedback(interview)">
+                          <div class="grid-2">
+                            <div class="field">
+                              <label for="rating">Note (1 à 5)</label>
+                              <input id="rating" class="input" type="number" min="1" max="5" formControlName="rating" />
+                            </div>
+                            <div class="field">
+                              <label for="recommendation">Recommandation</label>
+                              <select id="recommendation" class="input" formControlName="recommendation">
+                                @for (option of recommendationOptions; track option.value) {
+                                  <option [value]="option.value">{{ option.label }}</option>
+                                }
+                              </select>
+                            </div>
+                          </div>
+                          <div class="field">
+                            <label for="strengths">Points forts</label>
+                            <textarea id="strengths" class="input" rows="3" formControlName="strengths"></textarea>
+                          </div>
+                          <div class="field">
+                            <label for="weaknesses">Points d’attention</label>
+                            <textarea id="weaknesses" class="input" rows="3" formControlName="weaknesses"></textarea>
+                          </div>
+                          <button class="btn btn-primary small" type="submit" [disabled]="activeFeedbackInterview() !== interview.id">
+                            Enregistrer mon avis
+                          </button>
+                        </form>
+                      </div>
+                    }
+                  </li>
+                }
+              </ul>
+            }
+          } @else {
+            <p class="status">Chargement…</p>
+          }
+
+          @if (canManage()) {
+            <form class="schedule" [formGroup]="interviewForm" (ngSubmit)="scheduleInterview()">
+              <h3>Planifier un entretien</h3>
+              <div class="grid-2">
+                <div class="field">
+                  <label for="startAt">Date et heure</label>
+                  <input id="startAt" class="input" type="datetime-local" formControlName="startAt" />
+                </div>
+                <div class="field">
+                  <label for="duration">Durée (minutes)</label>
+                  <input id="duration" class="input" type="number" min="15" max="480" step="15" formControlName="durationMin" />
+                </div>
+              </div>
+              <div class="grid-2">
+                <div class="field">
+                  <label for="mode">Mode</label>
+                  <select id="mode" class="input" formControlName="mode">
+                    <option value="ONLINE">En ligne</option>
+                    <option value="ON_SITE">Sur site</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="location">Lien ou lieu <span class="optional">(facultatif)</span></label>
+                  <input id="location" class="input" formControlName="locationOrLink" />
+                </div>
+              </div>
+              <fieldset class="participants">
+                <legend>Participants</legend>
+                @for (member of staff.value() ?? []; track member.id) {
+                  <label class="check">
+                    <input
+                      type="checkbox"
+                      [checked]="participantChecked(member.id)"
+                      (change)="toggleParticipant(member.id, $any($event.target).checked)"
+                    />
+                    {{ member.firstName }} {{ member.lastName }}
+                  </label>
+                }
+              </fieldset>
+              <button class="btn btn-primary" type="submit">Planifier l’entretien</button>
+            </form>
+          }
+        </section>
+
+        <section class="card">
+          <div class="section-head">
+            <h2>Notes internes</h2>
+          </div>
+          @if (notes.value(); as list) {
+            @if (list.length === 0) {
+              <p class="hint">Aucune note pour cette candidature.</p>
+            } @else {
+              <ul class="notes">
+                @for (note of list; track note.id) {
+                  <li>
+                    <p>{{ note.content }}</p>
+                    <p class="hint">
+                      {{ note.authorName }} · {{ note.createdAt | date: 'd MMM y à HH:mm' }}
+                    </p>
+                    <button type="button" class="btn btn-quiet small" (click)="deleteNote(note)">Supprimer</button>
+                  </li>
+                }
+              </ul>
+            }
+          }
+          <form class="stack note-form" [formGroup]="noteForm" (ngSubmit)="addNote()">
+            <div class="field">
+              <label for="note">Ajouter une note</label>
+              <textarea id="note" class="input" rows="3" formControlName="content"
+                        placeholder="Compte rendu d’appel, points à vérifier…"></textarea>
+            </div>
+            <button class="btn btn-primary" type="submit">Ajouter la note</button>
+          </form>
+        </section>
+      </div>
+
+      <aside class="side">
+        <section class="card stack">
+          <h2>Changer l’étape</h2>
+          @if (canManage()) {
+            <form class="stack" [formGroup]="stageForm" (ngSubmit)="changeStage()">
+              <div class="field">
+                <label for="stage">Nouvelle étape</label>
+                <select id="stage" class="input" formControlName="stage">
+                  @for (option of stageOptions; track option.value) {
+                    <option [value]="option.value">{{ option.label }}</option>
+                  }
+                </select>
+              </div>
+              <div class="field">
+                <label for="reason">Motif <span class="optional">(facultatif)</span></label>
+                <textarea id="reason" class="input" rows="2" formControlName="reason"></textarea>
+              </div>
+              <button class="btn btn-primary" type="submit">Mettre à jour</button>
+            </form>
+          } @else {
+            <p class="hint">Seules les équipes RH peuvent changer l’étape d’une candidature.</p>
+          }
+        </section>
+
+        <section class="card stack">
+          <h2>Étiquettes</h2>
+          @if (canManage()) {
+            <form class="stack" [formGroup]="tagsForm" (ngSubmit)="saveTags()">
+              <div class="field">
+                <label for="tags">Séparées par des virgules</label>
+                <input id="tags" class="input" formControlName="tags" placeholder="senior, disponible" />
+              </div>
+              <button class="btn btn-outline" type="submit">Enregistrer</button>
+            </form>
+          }
+          <ul class="chips">
+            @for (tag of data.tags ?? []; track tag) {
+              <li class="chip">{{ tag }}</li>
+            } @empty {
+              <li class="hint">Aucune étiquette.</li>
+            }
+          </ul>
+        </section>
+
+        <section class="card stack">
+          <h2>Contact candidat</h2>
+          <p><a [href]="'mailto:' + data.candidateEmail">{{ data.candidateEmail }}</a></p>
+          @if (data.source) {
+            <p class="hint">Source : {{ data.source }}</p>
+          }
+          @if (data.coverLetter) {
+            <div>
+              <h3>Lettre de motivation</h3>
+              <p class="cover-letter">{{ data.coverLetter }}</p>
+            </div>
+          }
+        </section>
+      </aside>
+    </div>
+  } @else {
+    <p class="status">Chargement de la candidature…</p>
+  }
+</section>

@@ -18,13 +18,22 @@
         <a routerLink="/mes-candidatures" routerLinkActive="active">Mes candidatures</a>
       }
       @if (auth.isStaff()) {
-        <a routerLink="/equipe" routerLinkActive="active">Espace équipe</a>
+        <a routerLink="/equipe" routerLinkActive="active">Pilotage</a>
+      }
+      @if (auth.user()?.role === 'ADMIN') {
+        <a routerLink="/admin/utilisateurs" routerLinkActive="active">Administration</a>
       }
     </nav>
 
     <div class="account">
       @if (auth.user(); as user) {
-        <span class="who">{{ user.firstName }} {{ user.lastName }}</span>
+        <a class="bell" routerLink="/notifications" aria-label="Notifications">
+          <app-icon name="bell" />
+          @if (notifications.unreadCount() > 0) {
+            <span class="bell-count">{{ notifications.unreadCount() }}</span>
+          }
+        </a>
+        <a class="who" routerLink="/profil">{{ user.firstName }} {{ user.lastName }}</a>
         <button type="button" class="btn btn-quiet" (click)="logout()">Se déconnecter</button>
       } @else {
         <a class="btn btn-quiet" routerLink="/connexion">Se connecter</a>

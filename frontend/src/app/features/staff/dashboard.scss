@@ -1,0 +1,32 @@
+.charts {
+  margin-block: 1.25rem;
+}
+
+.charts .card {
+  min-width: 0;
+}
+
+.bar-row {
+  grid-template-columns: minmax(6rem, 10rem) 1fr auto;
+}
+
+.stages {
+  margin-top: 1.25rem;
+}
+
+.stage-total {
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-s);
+}
+
+.stage-total span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.stage-total strong {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+}

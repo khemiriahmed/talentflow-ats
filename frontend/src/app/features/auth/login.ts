@@ -19,6 +19,7 @@ export class Login {
 
   readonly returnUrl = input<string | undefined>();
   readonly expired = input<string | undefined>();
+  readonly reset = input<string | undefined>();
 
   protected readonly form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],

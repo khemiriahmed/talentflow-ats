@@ -1,0 +1,177 @@
+<section class="page container">
+  <header class="page-head">
+    <div>
+      <h1>Tableau de bord recrutement</h1>
+      <p class="lede">Suivez les volumes, le taux de conversion et le délai d’embauche.</p>
+    </div>
+  </header>
+
+  <form class="toolbar" (ngSubmit)="stats.reload()">
+    <div class="field">
+      <label for="from">Du</label>
+      <input id="from" class="input" type="date" [ngModel]="from()" (ngModelChange)="from.set($event)" name="from" />
+    </div>
+    <div class="field">
+      <label for="to">Au</label>
+      <input id="to" class="input" type="date" [ngModel]="to()" (ngModelChange)="to.set($event)" name="to" />
+    </div>
+    <div class="field">
+      <label for="job">Offre</label>
+      <select id="job" class="input" [ngModel]="jobOfferId()" (ngModelChange)="jobOfferId.set($event)" name="job">
+        <option value="">Toutes les offres</option>
+        @for (job of jobs.value()?.content ?? []; track job.id) {
+          <option [value]="job.id">{{ job.title }}</option>
+        }
+      </select>
+    </div>
+    <div class="field">
+      <label for="granularity">Granularité</label>
+      <select id="granularity" class="input" [ngModel]="granularity()" (ngModelChange)="granularity.set($event)" name="granularity">
+        @for (option of granularities; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+    <div class="actions">
+      <button class="btn btn-primary" type="submit">Actualiser</button>
+      <button class="btn btn-quiet" type="button" (click)="reset(); stats.reload()">Réinitialiser</button>
+    </div>
+  </form>
+
+  @if (stats.error()) {
+    <div class="alert" role="alert">
+      <p>Impossible de charger les indicateurs.</p>
+      <button type="button" class="btn btn-outline" (click)="stats.reload()">Réessayer</button>
+    </div>
+  } @else if (stats.value(); as data) {
+    <dl class="grid-4">
+      <div class="stat">
+        <dt>Candidatures reçues</dt>
+        <dd>{{ data.summary.totalApplications }}</dd>
+      </div>
+      <div class="stat">
+        <dt>En cours</dt>
+        <dd>{{ data.summary.inProgress }}</dd>
+      </div>
+      <div class="stat">
+        <dt>Embauches</dt>
+        <dd>{{ data.summary.hired }}</dd>
+      </div>
+      <div class="stat">
+        <dt>Offres ouvertes</dt>
+        <dd>{{ data.summary.openJobs }}</dd>
+      </div>
+      <div class="stat">
+        <dt>Délai moyen d’embauche</dt>
+        <dd>
+          {{ data.timeToHire.averageDays != null ? (data.timeToHire.averageDays | number: '1.0-1') + ' j' : '—' }}
+        </dd>
+      </div>
+      <div class="stat">
+        <dt>Délai médian</dt>
+        <dd>
+          {{ data.timeToHire.medianDays != null ? (data.timeToHire.medianDays | number: '1.0-1') + ' j' : '—' }}
+        </dd>
+      </div>
+    </dl>
+
+    <div class="grid-2 charts">
+      <section class="card">
+        <div class="section-head">
+          <h2>Entonnoir de conversion</h2>
+          <span class="hint">{{ data.funnel.length }} étapes</span>
+        </div>
+        <ul class="bars">
+          @for (step of data.funnel; track step.stage) {
+            <li class="bar-row">
+              <span>{{ stageLabels[step.stage] }}</span>
+              <span class="bar-track">
+                <span class="bar-fill" [style.width.%]="step.percentOfReceived"></span>
+              </span>
+              <span>{{ step.count }} · {{ step.percentOfReceived | number: '1.1-1' }} %</span>
+            </li>
+          }
+        </ul>
+      </section>
+
+      <section class="card">
+        <div class="section-head">
+          <h2>Candidatures dans le temps</h2>
+        </div>
+        @if (data.applicationsOverTime.length === 0) {
+          <p class="hint">Aucune candidature sur la période.</p>
+        } @else {
+          <ul class="bars">
+            @for (point of data.applicationsOverTime; track point.periodStart) {
+              <li class="bar-row">
+                <span>{{ point.periodStart }}</span>
+                <span class="bar-track">
+                  <span class="bar-fill" [style.width]="barWidth(point.count, maxTime())"></span>
+                </span>
+                <span>{{ point.count }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <section class="card">
+        <div class="section-head">
+          <h2>Offres les plus demandées</h2>
+        </div>
+        @if (data.topJobs.length === 0) {
+          <p class="hint">Aucune donnée sur la période.</p>
+        } @else {
+          <ul class="bars">
+            @for (job of data.topJobs; track job.jobOfferId) {
+              <li class="bar-row">
+                <span>{{ job.title }}</span>
+                <span class="bar-track">
+                  <span class="bar-fill" [style.width]="barWidth(job.count, maxJob())"></span>
+                </span>
+                <span>{{ job.count }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <section class="card">
+        <div class="section-head">
+          <h2>Sources de candidature</h2>
+        </div>
+        @if (data.bySource.length === 0) {
+          <p class="hint">Aucune donnée sur la période.</p>
+        } @else {
+          <ul class="bars">
+            @for (source of data.bySource; track source.label) {
+              <li class="bar-row">
+                <span>{{ source.label }}</span>
+                <span class="bar-track">
+                  <span class="bar-fill" [style.width]="barWidth(source.count, maxSource())"></span>
+                </span>
+                <span>{{ source.count }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    </div>
+
+    <section class="card stages">
+      <div class="section-head">
+        <h2>Répartition actuelle par étape</h2>
+      </div>
+      <div class="grid-4">
+        @for (stage of data.currentStages; track stage.stage) {
+          <div class="stage-total">
+            <span>{{ stageLabels[stage.stage] }}</span>
+            <strong>{{ stage.count }}</strong>
+          </div>
+        }
+      </div>
+    </section>
+  } @else {
+    <p class="status">Chargement des indicateurs…</p>
+  }
+</section>

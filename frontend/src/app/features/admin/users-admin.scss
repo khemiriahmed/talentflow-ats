@@ -1,0 +1,25 @@
+.create {
+  margin-bottom: 1.5rem;
+}
+
+.create h2 {
+  font-size: var(--step-1);
+}
+
+.table .input.compact {
+  height: 2.2rem;
+  padding-block: 0.2rem;
+  font-size: 0.9rem;
+}
+
+.table td:first-child {
+  min-width: 13rem;
+}
+
+.table .hint {
+  margin: 0.15rem 0 0;
+}
+
+tr.disabled {
+  background: color-mix(in srgb, var(--danger-soft) 35%, var(--surface));
+}

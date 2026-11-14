@@ -49,6 +49,28 @@ Comptes de démo (profil `dev` uniquement) :
 | HR | hr@talentflow.local | Hr123456! |
 | MANAGER | manager@talentflow.local | Manager123! |
 
+## Comptes, sécurité et RGPD
+
+| Endpoint | Accès | Description |
+|---|---|---|
+| `PATCH /api/v1/auth/me` | authentifié | Mettre à jour prénom, nom, téléphone, LinkedIn, photo |
+| `DELETE /api/v1/auth/me` | candidat | Suppression RGPD : candidatures et CV effacés, compte anonymisé |
+| `POST /api/v1/auth/verify-email` | public | Vérifier l'adresse email avec le jeton reçu par email (48 h) |
+| `POST /api/v1/auth/verify-email/resend` | public | Renvoyer un lien de vérification (réponse identique si le compte existe ou non) |
+| `POST /api/v1/auth/forgot-password` | public | Demander un lien de réinitialisation (2 h, réponse neutre) |
+| `POST /api/v1/auth/reset-password` | public | Définir un nouveau mot de passe avec le jeton reçu |
+| `GET /api/v1/staff` | RH, Admin, Manager | Annuaire des comptes équipe (sélection des participants aux entretiens) |
+| `GET /api/v1/admin/audit` | ADMIN | Journal d'audit filtrable (`action`, `entityType`, `actorId`) |
+
+- Les jetons de vérification et de réinitialisation sont générés avec `SecureRandom` ; seul leur condensat
+  SHA-256 est stocké en base. Ils sont à usage unique et expirent automatiquement.
+- `REQUIRE_EMAIL_VERIFICATION=true` impose une adresse vérifiée à la connexion. Par défaut `false` en local
+  pour ne pas bloquer les démonstrations et les tests.
+- Limitation de débit sur `login`, `register`, `forgot-password`, `reset-password` et `verify-email/resend`
+  (`AUTH_RATE_LIMIT_PER_MINUTE`, 100 par défaut et par IP).
+- Audit : création/modification d'offres, changements d'étape, exports CSV, gestion des utilisateurs,
+  réinitialisations de mot de passe et anonymisations RGPD.
+
 ## Offres et candidatures
 
 | Endpoint | Accès | Description |
@@ -132,6 +154,23 @@ Paramètres du dashboard : `from`, `to` (période sur la date de candidature, 90
 - **Export CSV** : séparateur `;`, UTF-8 avec BOM (ouverture directe dans Excel), cellules commençant par `= + - @`
   neutralisées contre l'injection de formules. Les tags ne sont jamais visibles du candidat.
 
+## Pages équipe et administration (Angular)
+
+| Page | Accès | Description |
+|---|---|---|
+| `/equipe/tableau-de-bord` | RH, Admin | Indicateurs, entonnoir, sources, délai d'embauche |
+| `/equipe/offres` | RH, Manager, Admin | Liste, filtres, publication, clôture, archivage, suppression |
+| `/equipe/offres/nouvelle`, `/equipe/offres/:id/modifier` | RH, Admin | Création et modification d'une offre, affectation d'un manager |
+| `/equipe/candidatures` | RH, Manager, Admin | Recherche multicritère, pagination, export CSV |
+| `/equipe/candidatures/:id` | RH, Manager, Admin | Dossier complet : CV, parcours, notes, tags, entretiens, feedback |
+| `/equipe/pipeline` | RH, Manager, Admin | Vue kanban avec glisser-déposer (RH/Admin) |
+| `/equipe/entretiens` | RH, Manager, Admin | Calendrier 7 à 90 jours, annulation, accès au dossier |
+| `/admin/utilisateurs` | Admin | Création de comptes, rôles, activation/désactivation |
+| `/admin/audit` | Admin | Journal d'audit en lecture seule |
+| `/profil` | authentifié | Profil, vérification email, suppression RGPD du compte candidat |
+| `/notifications` | authentifié | Centre de notifications avec marquage lu/non lu |
+| `/verifier-email`, `/mot-de-passe-oublie`, `/reinitialiser-mot-de-passe` | public | Flux de compte par email |
+
 ## Frontend (Angular)
 
 | Page | Accès | Description |
@@ -144,3 +183,13 @@ Paramètres du dashboard : `from`, `to` (période sur la date de candidature, 90
 
 Développement : `cd frontend && npm install && npm start` (http://localhost:4200, proxy vers le backend sur 8080).
 En production, nginx sert l'application et relaie `/api` vers le backend (même origine, pas de CORS).
+
+## Tests
+
+```bash
+cd backend && mvn verify     # 23 tests, PostgreSQL via Testcontainers
+cd frontend && npm test      # 49 tests, build de production avec npm run build
+```
+
+Le backend force l'API Docker `1.40` pour Testcontainers (`maven-surefire-plugin`), nécessaire avec les moteurs
+récents (Docker Engine 29 exige au minimum l'API 1.40, alors que Testcontainers 1.21 demande 1.32 par défaut).

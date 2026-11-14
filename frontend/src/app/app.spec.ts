@@ -23,7 +23,7 @@ describe('App shell', () => {
   }
 
   const links = (root: HTMLElement) =>
-    Array.from(root.querySelectorAll('nav a, .account a')).map((a) => a.textContent?.trim());
+    Array.from(root.querySelectorAll('nav a, .account a:not(.bell)')).map((a) => a.textContent?.trim());
 
   it('invites a visitor to sign in or create an account', async () => {
     const root = await render();
@@ -33,13 +33,13 @@ describe('App shell', () => {
 
   it('shows "Mes candidatures" to a candidate, with their name and a sign-out button', async () => {
     const root = await render('CANDIDATE');
-    expect(links(root)).toEqual(['Offres', 'Mes candidatures']);
+    expect(links(root)).toEqual(['Offres', 'Mes candidatures', 'Camille Martin']);
     expect(root.querySelector('.who')?.textContent).toContain('Camille Martin');
     expect(root.querySelector('.account button')?.textContent).toContain('Se déconnecter');
   });
 
   it('shows the staff space to staff only', async () => {
     const root = await render('HR');
-    expect(links(root)).toEqual(['Offres', 'Espace équipe']);
+    expect(links(root)).toEqual(['Offres', 'Pilotage', 'Camille Martin']);
   });
 });

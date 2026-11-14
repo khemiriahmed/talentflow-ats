@@ -1,0 +1,95 @@
+<section class="page container narrow">
+  <header class="page-head">
+    <div>
+      <h1>{{ id() ? 'Modifier l’offre' : 'Nouvelle offre' }}</h1>
+      <p class="lede">
+        Une offre est créée en brouillon. Publiez-la depuis la liste quand elle est prête.
+      </p>
+    </div>
+    <a class="btn btn-quiet" routerLink="/equipe/offres">Retour aux offres</a>
+  </header>
+
+  <form class="card stack" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="field">
+      <label for="title">Intitulé du poste</label>
+      <input id="title" class="input" formControlName="title" />
+      @if (submitted() && form.controls.title.invalid) {
+        <p class="error">L’intitulé est obligatoire (200 caractères maximum).</p>
+      }
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label for="department">Département <span class="optional">(facultatif)</span></label>
+        <input id="department" class="input" formControlName="department" />
+      </div>
+      <div class="field">
+        <label for="location">Lieu <span class="optional">(facultatif)</span></label>
+        <input id="location" class="input" formControlName="location" />
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label for="contractType">Type de contrat</label>
+        <select id="contractType" class="input" formControlName="contractType">
+          @for (contract of contracts; track contract.value) {
+            <option [value]="contract.value">{{ contract.label }}</option>
+          }
+        </select>
+      </div>
+      <div class="field">
+        <label for="deadline">Date limite <span class="optional">(facultatif)</span></label>
+        <input id="deadline" class="input" type="date" formControlName="deadline" />
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label for="salaryMin">Salaire minimum <span class="optional">(facultatif)</span></label>
+        <input id="salaryMin" class="input" type="number" min="0" step="100" formControlName="salaryMin" />
+      </div>
+      <div class="field">
+        <label for="salaryMax">Salaire maximum <span class="optional">(facultatif)</span></label>
+        <input id="salaryMax" class="input" type="number" min="0" step="100" formControlName="salaryMax" />
+      </div>
+    </div>
+
+    @if (canAssignManager) {
+      <div class="field">
+        <label for="manager">Manager responsable <span class="optional">(facultatif)</span></label>
+        <select id="manager" class="input" formControlName="managerId">
+          <option value="">Aucun manager assigné</option>
+          @for (member of staff.value() ?? []; track member.id) {
+            @if (member.role === 'MANAGER') {
+              <option [value]="member.id">{{ member.firstName }} {{ member.lastName }}</option>
+            }
+          }
+        </select>
+        <p class="hint">Le manager verra les candidatures de cette offre et pourra évaluer les entretiens.</p>
+      </div>
+    }
+
+    <div class="field">
+      <label for="description">Description du poste</label>
+      <textarea id="description" class="input" rows="12" formControlName="description"></textarea>
+      @if (submitted() && form.controls.description.invalid) {
+        <p class="error">La description est obligatoire.</p>
+      }
+      @if (fieldError('description'); as message) {
+        <p class="error">{{ message }}</p>
+      }
+    </div>
+
+    @if (error(); as message) {
+      <p class="alert" role="alert">{{ message }}</p>
+    }
+
+    <div class="inline">
+      <button class="btn btn-primary" type="submit" [disabled]="saving()">
+        {{ saving() ? 'Enregistrement…' : id() ? 'Enregistrer les modifications' : 'Créer le brouillon' }}
+      </button>
+      <a class="btn btn-quiet" routerLink="/equipe/offres">Annuler</a>
+    </div>
+  </form>
+</section>
