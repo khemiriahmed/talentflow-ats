@@ -22,4 +22,11 @@ public final class DomainEvents {
 
     public record FeedbackSubmitted(Long interviewId, Long authorId) {
     }
+
+    /** Le jeton brut n'est jamais persisté : il n'existe que le temps de l'envoi de l'email. */
+    public record EmailVerificationRequested(Long userId, String token) {
+    }
+
+    public record PasswordResetRequested(Long userId, String token) {
+    }
 }

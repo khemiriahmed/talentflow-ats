@@ -1,4 +1,12 @@
-import { ContractType, Role, Stage } from './models';
+import {
+  ContractType,
+  InterviewMode,
+  InterviewStatus,
+  JobStatus,
+  Recommendation,
+  Role,
+  Stage,
+} from './models';
 
 export const CONTRACT_LABELS: Record<ContractType, string> = {
   CDI: 'CDI',
@@ -49,6 +57,45 @@ export const STAGE_MESSAGES: Record<Stage, string> = {
   HIRED: 'Félicitations, vous êtes embauché(e).',
   REJECTED: 'Votre candidature n’a pas été retenue pour ce poste.',
 };
+
+export const JOB_STATUS_LABELS: Record<JobStatus, string> = {
+  DRAFT: 'Brouillon',
+  PUBLISHED: 'Publiée',
+  CLOSED: 'Clôturée',
+  ARCHIVED: 'Archivée',
+};
+
+export const JOB_STATUS_OPTIONS = (Object.keys(JOB_STATUS_LABELS) as JobStatus[]).map((value) => ({
+  value,
+  label: JOB_STATUS_LABELS[value],
+}));
+
+export const INTERVIEW_MODE_LABELS: Record<InterviewMode, string> = {
+  ONLINE: 'En ligne',
+  ON_SITE: 'Sur site',
+};
+
+export const INTERVIEW_STATUS_LABELS: Record<InterviewStatus, string> = {
+  SCHEDULED: 'Planifié',
+  DONE: 'Réalisé',
+  CANCELLED: 'Annulé',
+};
+
+export const RECOMMENDATION_LABELS: Record<Recommendation, string> = {
+  STRONG_YES: 'Avis très favorable',
+  YES: 'Favorable',
+  NO: 'Défavorable',
+  STRONG_NO: 'Avis très défavorable',
+};
+
+export const RECOMMENDATION_OPTIONS = (
+  Object.keys(RECOMMENDATION_LABELS) as Recommendation[]
+).map((value) => ({ value, label: RECOMMENDATION_LABELS[value] }));
+
+export const STAGE_OPTIONS = (Object.keys(STAGE_STEP_LABELS) as Stage[]).map((value) => ({
+  value,
+  label: STAGE_STEP_LABELS[value],
+}));
 
 /** Valeurs envoyées au backend dans le champ "source" (utilisées par le dashboard RH). */
 export const SOURCE_OPTIONS = [

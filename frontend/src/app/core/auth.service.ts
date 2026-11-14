@@ -3,7 +3,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, catchError, finalize, map, of, shareReplay, tap, throwError } from 'rxjs';
 import { API_BASE } from './config';
-import { AuthResponse, RegisterPayload, User } from './models';
+import { AuthResponse, RegisterPayload, UpdateProfilePayload, User } from './models';
 
 const REFRESH_KEY = 'talentflow.refresh';
 
@@ -39,6 +39,7 @@ export class AuthService {
 
   /** Page d'accueil selon le rôle. */
   homePath(): string {
+    if (this.currentUser()?.role === 'ADMIN') return '/admin/utilisateurs';
     return this.isStaff() ? '/equipe' : '/offres';
   }
 
@@ -52,6 +53,43 @@ export class AuthService {
     return this.http
       .post<AuthResponse>(`${API_BASE}/auth/register`, payload)
       .pipe(map((response) => this.startSession(response)));
+  }
+
+  /** Recharge le profil (après vérification d'email ou modification). */
+  refreshUser(): Observable<User> {
+    return this.http.get<User>(`${API_BASE}/auth/me`).pipe(
+      tap((user) => this.currentUser.set(user)),
+    );
+  }
+
+  updateProfile(payload: UpdateProfilePayload): Observable<User> {
+    return this.http.patch<User>(`${API_BASE}/auth/me`, payload).pipe(
+      tap((user) => this.currentUser.set(user)),
+    );
+  }
+
+  deleteAccount(): Observable<void> {
+    return this.http.delete<void>(`${API_BASE}/auth/me`).pipe(tap(() => this.clearSession()));
+  }
+
+  forgotPassword(email: string): Observable<void> {
+    return this.http.post<void>(`${API_BASE}/auth/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, password: string): Observable<void> {
+    return this.http.post<void>(`${API_BASE}/auth/reset-password`, { token, password });
+  }
+
+  verifyEmail(token: string): Observable<User> {
+    return this.http.post<User>(`${API_BASE}/auth/verify-email`, { token }).pipe(
+      tap((user) => {
+        if (this.currentUser()?.email === user.email) this.currentUser.set(user);
+      }),
+    );
+  }
+
+  resendVerification(email: string): Observable<void> {
+    return this.http.post<void>(`${API_BASE}/auth/verify-email/resend`, { email });
   }
 
   logout(): void {

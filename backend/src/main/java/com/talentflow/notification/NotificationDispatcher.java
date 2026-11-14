@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -45,6 +47,32 @@ public class NotificationDispatcher {
     private final EmailService emailService;
     private final EmailRenderer renderer;
     private final AppMailProperties mailProps;
+
+    // ---------- comptes ----------
+
+    @Transactional(readOnly = true)
+    public void onEmailVerificationRequested(Long userId, String token) {
+        userRepository.findById(userId).ifPresent(user -> {
+            String link = mailProps.baseUrl() + "/verifier-email?token="
+                    + URLEncoder.encode(token, StandardCharsets.UTF_8);
+            sendAccountEmail(user, EmailTemplate.VERIFY_EMAIL, vars(
+                    "recipientName", fullName(user),
+                    "actionUrl", link,
+                    "expiresHours", 48));
+        });
+    }
+
+    @Transactional(readOnly = true)
+    public void onPasswordResetRequested(Long userId, String token) {
+        userRepository.findById(userId).ifPresent(user -> {
+            String link = mailProps.baseUrl() + "/reinitialiser-mot-de-passe?token="
+                    + URLEncoder.encode(token, StandardCharsets.UTF_8);
+            sendAccountEmail(user, EmailTemplate.PASSWORD_RESET, vars(
+                    "recipientName", fullName(user),
+                    "actionUrl", link,
+                    "expiresHours", 2));
+        });
+    }
 
     // ---------- candidatures ----------
 
@@ -178,6 +206,14 @@ public class NotificationDispatcher {
                 "location", location,
                 "locationIsUrl", location != null
                         && (location.startsWith("https://") || location.startsWith("http://")));
+    }
+
+    private void sendAccountEmail(User recipient, EmailTemplate template, Map<String, Object> variables) {
+        try {
+            emailService.send(recipient.getEmail(), template.subject(), renderer.render(template, variables));
+        } catch (RuntimeException ex) {
+            log.warn("Email {} could not be sent to user {}", template, recipient.getId(), ex);
+        }
     }
 
     private void email(User recipient, EmailTemplate template, String jobTitle, Map<String, Object> variables) {

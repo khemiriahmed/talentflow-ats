@@ -7,8 +7,11 @@ export function userFixture(role: Role = 'CANDIDATE', overrides: Partial<User> =
     firstName: 'Camille',
     lastName: 'Martin',
     phone: null,
+    linkedinUrl: null,
+    photoUrl: null,
     role,
     enabled: true,
+    emailVerified: true,
     createdAt: '2026-11-01T10:00:00Z',
     ...overrides,
   };

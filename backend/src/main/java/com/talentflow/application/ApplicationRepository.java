@@ -20,6 +20,8 @@ public interface ApplicationRepository
 
     List<Application> findByJobOfferIdAndCurrentStage(Long jobOfferId, Stage stage);
 
+    List<Application> findAllByCandidateId(Long candidateId);
+
     long countByJobOfferId(Long jobOfferId);
 
     /** Charge l'offre et le candidat avec la page (évite le N+1 au mapping). */
