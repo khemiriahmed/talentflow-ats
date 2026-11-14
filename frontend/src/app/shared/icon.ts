@@ -9,7 +9,16 @@ export type IconName =
   | 'file'
   | 'check'
   | 'alert'
-  | 'x';
+  | 'x'
+  | 'bell'
+  | 'users'
+  | 'chart'
+  | 'plus'
+  | 'download'
+  | 'clock'
+  | 'search'
+  | 'shield'
+  | 'trash';
 
 /** Icônes en trait, héritent de la couleur du texte (currentColor). */
 @Component({
@@ -57,6 +66,38 @@ export type IconName =
         }
         @case ('x') {
           <path d="M6 6l12 12M18 6L6 18" />
+        }
+        @case ('bell') {
+          <path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+          <path d="M10 21h4" />
+        }
+        @case ('users') {
+          <circle cx="9" cy="8" r="3.5" />
+          <path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a5.5 5.5 0 0 1 3.5 5.1" />
+        }
+        @case ('chart') {
+          <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />
+        }
+        @case ('plus') {
+          <path d="M12 5v14M5 12h14" />
+        }
+        @case ('download') {
+          <path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M4 17v2a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2" />
+        }
+        @case ('clock') {
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 7v5l3 2" />
+        }
+        @case ('search') {
+          <circle cx="11" cy="11" r="7" />
+          <path d="m20 20-3.5-3.5" />
+        }
+        @case ('shield') {
+          <path d="M12 3l8 3v6c0 4.5-3.2 7.6-8 9-4.8-1.4-8-4.5-8-9V6z" />
+          <path d="m8.5 12 2.5 2.5 4.5-4.5" />
+        }
+        @case ('trash') {
+          <path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13M10 11v5M14 11v5" />
         }
       }
     </svg>

@@ -47,6 +47,18 @@ public class NotificationEventListener {
         run("feedbackSubmitted", () -> dispatcher.onFeedbackSubmitted(event.interviewId(), event.authorId()));
     }
 
+    @Async("notificationExecutor")
+    @TransactionalEventListener
+    public void emailVerificationRequested(DomainEvents.EmailVerificationRequested event) {
+        run("emailVerificationRequested", () -> dispatcher.onEmailVerificationRequested(event.userId(), event.token()));
+    }
+
+    @Async("notificationExecutor")
+    @TransactionalEventListener
+    public void passwordResetRequested(DomainEvents.PasswordResetRequested event) {
+        run("passwordResetRequested", () -> dispatcher.onPasswordResetRequested(event.userId(), event.token()));
+    }
+
     private void run(String name, Runnable action) {
         try {
             action.run();

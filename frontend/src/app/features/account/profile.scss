@@ -1,0 +1,51 @@
+.narrow {
+  max-width: 62rem;
+}
+
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.identity strong {
+  display: block;
+}
+
+.identity .hint {
+  margin: 0;
+}
+
+.avatar {
+  width: 3.5rem;
+  height: 3.5rem;
+  font-size: 1.15rem;
+}
+
+.verify {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding: 0.9rem 1rem;
+  border-left: 4px solid var(--warn-ink);
+  border-radius: 0 var(--radius-s) var(--radius-s) 0;
+  background: var(--warn-bg);
+  color: var(--warn-ink);
+}
+
+.verify p {
+  margin: 0;
+}
+
+.danger-zone h2 {
+  margin-bottom: 0.5rem;
+  color: var(--danger);
+  font-size: var(--step-1);
+}
+
+.danger-zone p {
+  color: var(--muted);
+}

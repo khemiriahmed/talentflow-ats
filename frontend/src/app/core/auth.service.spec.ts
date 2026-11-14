@@ -43,6 +43,12 @@ describe('AuthService', () => {
     expect(auth.homePath()).toBe('/equipe');
   });
 
+  it('sends admins to the user administration page', () => {
+    auth.login('admin@b.fr', 'x').subscribe();
+    http.expectOne('/api/v1/auth/login').flush(authResponse('ADMIN'));
+    expect(auth.homePath()).toBe('/admin/utilisateurs');
+  });
+
   it('does not call the server on startup when there is no refresh token', () => {
     let completed = false;
     auth.restoreSession().subscribe({ complete: () => (completed = true) });

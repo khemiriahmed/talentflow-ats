@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -64,6 +65,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     ResponseEntity<ApiError> handleTooLarge(HttpServletRequest req) {
         return build(HttpStatus.PAYLOAD_TOO_LARGE, "File too large (max 5 MB)", req, null);
+    }
+
+    @ExceptionHandler(DisabledException.class)
+    ResponseEntity<ApiError> handleDisabled(HttpServletRequest req) {
+        return build(HttpStatus.FORBIDDEN,
+                "Account disabled or email address not verified", req, null);
     }
 
     @ExceptionHandler(AuthenticationException.class)

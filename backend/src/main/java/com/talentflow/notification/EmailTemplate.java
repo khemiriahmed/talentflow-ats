@@ -7,7 +7,9 @@ public enum EmailTemplate {
     STAGE_CHANGED("email/stage-changed", "Mise à jour de votre candidature"),
     INTERVIEW_INVITATION("email/interview-invitation", "Invitation à un entretien"),
     INTERVIEW_CANCELLED("email/interview-cancelled", "Entretien annulé"),
-    INTERVIEW_REMINDER("email/interview-reminder", "Rappel de votre entretien");
+    INTERVIEW_REMINDER("email/interview-reminder", "Rappel de votre entretien"),
+    VERIFY_EMAIL("email/verify-email", "Vérifiez votre adresse e-mail"),
+    PASSWORD_RESET("email/password-reset", "Réinitialisation de votre mot de passe");
 
     private final String templateName;
     private final String subject;
@@ -19,6 +21,10 @@ public enum EmailTemplate {
 
     public String templateName() {
         return templateName;
+    }
+
+    public String subject() {
+        return subject;
     }
 
     public String subject(String jobTitle) {

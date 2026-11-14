@@ -37,7 +37,8 @@ public class SecurityConfig {
     SecurityFilterChain filterChain(HttpSecurity http,
                                     JwtService jwtService,
                                     UserDetailsService userDetailsService,
-                                    RestSecurityErrorHandler errorHandler) throws Exception {
+                                    RestSecurityErrorHandler errorHandler,
+                                    AuthRateLimitFilter rateLimitFilter) throws Exception {
         JwtAuthenticationFilter jwtFilter = new JwtAuthenticationFilter(jwtService, userDetailsService);
 
         http
@@ -51,10 +52,13 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/actuator/health/**", "/actuator/info", "/actuator/prometheus").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                .requestMatchers("/api/v1/auth/register", "/api/v1/auth/login", "/api/v1/auth/refresh").permitAll()
+                .requestMatchers("/api/v1/auth/register", "/api/v1/auth/login", "/api/v1/auth/refresh",
+                        "/api/v1/auth/verify-email", "/api/v1/auth/verify-email/resend",
+                        "/api/v1/auth/forgot-password", "/api/v1/auth/reset-password").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/jobs", "/api/v1/jobs/{id:\\d+}").permitAll()
                 .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated())
+            .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

@@ -19,6 +19,8 @@ export function loginErrorMessage(err: unknown): string {
   switch (statusOf(err)) {
     case 401:
       return 'Adresse e-mail ou mot de passe incorrect. Vérifiez votre saisie et réessayez.';
+    case 403:
+      return 'Ce compte est désactivé ou son adresse e-mail n’est pas encore vérifiée. Consultez votre boîte de réception ou contactez un administrateur.';
     case 0:
       return NETWORK;
     default:

@@ -1,0 +1,57 @@
+<section class="page container narrow">
+  <header class="page-head">
+    <div>
+      <h1>Notifications</h1>
+      <p class="lede">Les événements de recrutement qui vous concernent.</p>
+    </div>
+    <div class="inline">
+      <button type="button" class="btn btn-outline small" (click)="toggleUnread()">
+        {{ unreadOnly() ? 'Voir toutes' : 'Non lues uniquement' }}
+      </button>
+      <button type="button" class="btn btn-quiet small" (click)="markAllRead()">
+        Tout marquer comme lu
+      </button>
+    </div>
+  </header>
+
+  @if (error(); as message) {
+    <div class="alert" role="alert">
+      <p>{{ message }}</p>
+      <button type="button" class="btn btn-outline" (click)="load()">Réessayer</button>
+    </div>
+  } @else if (loading()) {
+    <p class="status">Chargement des notifications…</p>
+  } @else if (items().length === 0) {
+    <div class="empty-state">
+      <p>Aucune notification pour le moment.</p>
+    </div>
+  } @else {
+    <ul class="notifications">
+      @for (notification of items(); track notification.id) {
+        <li class="card" [class.unread]="!notification.read">
+          <div>
+            <p class="message">{{ notification.message }}</p>
+            <p class="hint">
+              {{ notification.createdAt | date: 'd MMMM y à HH:mm' }}
+              @if (!notification.read) {
+                · <strong>Non lue</strong>
+              }
+            </p>
+          </div>
+          <div class="actions">
+            @if (linkFor(notification); as link) {
+              <a class="btn btn-outline small" [routerLink]="link" (click)="markRead(notification)">
+                Ouvrir
+              </a>
+            }
+            @if (!notification.read) {
+              <button type="button" class="btn btn-quiet small" (click)="markRead(notification)">
+                Marquer comme lue
+              </button>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</section>

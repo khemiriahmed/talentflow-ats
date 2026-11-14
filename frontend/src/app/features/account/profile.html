@@ -1,0 +1,113 @@
+<section class="page container narrow">
+  @if (user(); as current) {
+    <header class="page-head">
+      <div>
+        <h1>Mon profil</h1>
+        <p class="lede">Ces informations sont visibles par l’équipe de recrutement.</p>
+      </div>
+      <div class="identity">
+        <span class="avatar">
+          @if (current.photoUrl) {
+            <img [src]="current.photoUrl" alt="" />
+          } @else {
+            {{ initials(current) }}
+          }
+        </span>
+        <div>
+          <strong>{{ current.firstName }} {{ current.lastName }}</strong>
+          <p class="hint">{{ roleLabels[current.role] }}</p>
+        </div>
+      </div>
+    </header>
+
+    @if (!current.emailVerified) {
+      <div class="verify">
+        <p>
+          Votre adresse email <strong>{{ current.email }}</strong> n’est pas encore vérifiée.
+          Vérifiez votre boîte de réception.
+        </p>
+        @if (verificationSent()) {
+          <p class="hint" role="status">Un nouveau lien de vérification vient d’être envoyé.</p>
+        } @else {
+          <button type="button" class="btn btn-outline small" (click)="resendVerification()">
+            Renvoyer le lien
+          </button>
+        }
+      </div>
+    }
+
+    <div class="split">
+      <form class="card stack" [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <div class="field">
+          <span class="label">Adresse email</span>
+          <input class="input" [value]="current.email" disabled />
+          <p class="hint">L’adresse email ne peut pas être modifiée en ligne.</p>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label for="firstName">Prénom</label>
+            <input id="firstName" class="input" formControlName="firstName" autocomplete="given-name" />
+            @if (submitted() && form.controls.firstName.invalid) {
+              <p class="error">Le prénom est obligatoire.</p>
+            }
+          </div>
+          <div class="field">
+            <label for="lastName">Nom</label>
+            <input id="lastName" class="input" formControlName="lastName" autocomplete="family-name" />
+            @if (submitted() && form.controls.lastName.invalid) {
+              <p class="error">Le nom est obligatoire.</p>
+            }
+          </div>
+        </div>
+        <div class="field">
+          <label for="phone">Téléphone <span class="optional">(facultatif)</span></label>
+          <input id="phone" class="input" type="tel" formControlName="phone" autocomplete="tel" />
+        </div>
+        <div class="field">
+          <label for="linkedin">Profil LinkedIn <span class="optional">(facultatif)</span></label>
+          <input id="linkedin" class="input" type="url" formControlName="linkedinUrl"
+                 placeholder="https://www.linkedin.com/in/…" />
+          @if (submitted() && form.controls.linkedinUrl.invalid) {
+            <p class="error">L’adresse doit commencer par https://.</p>
+          }
+        </div>
+        <div class="field">
+          <label for="photo">Photo (URL) <span class="optional">(facultatif)</span></label>
+          <input id="photo" class="input" type="url" formControlName="photoUrl"
+                 placeholder="https://…" />
+          @if (submitted() && form.controls.photoUrl.invalid) {
+            <p class="error">L’adresse doit commencer par https://.</p>
+          }
+        </div>
+
+        @if (error(); as message) {
+          <p class="alert" role="alert">{{ message }}</p>
+        }
+        @if (saved()) {
+          <p class="notice" role="status">Vos informations ont été enregistrées.</p>
+        }
+        <button class="btn btn-primary" type="submit" [disabled]="saving()">
+          {{ saving() ? 'Enregistrement…' : 'Enregistrer' }}
+        </button>
+      </form>
+
+      @if (current.role === 'CANDIDATE') {
+        <aside class="card danger-zone">
+          <h2>Supprimer mon compte</h2>
+          <p>
+            Conformément au RGPD, vous pouvez demander la suppression de votre compte et de vos
+            candidatures. Vos CV seront effacés. Cette action est définitive.
+          </p>
+          <button type="button" class="btn btn-danger" [disabled]="deleting()" (click)="deleteAccount()">
+            {{ deleting() ? 'Suppression…' : 'Supprimer définitivement mon compte' }}
+          </button>
+        </aside>
+      } @else {
+        <aside class="card">
+          <h2>Compte professionnel</h2>
+          <p>La suppression d’un compte équipe est gérée par un administrateur.</p>
+        </aside>
+      }
+    </div>
+  }
+</section>

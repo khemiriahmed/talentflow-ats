@@ -8,7 +8,10 @@ public record UserDto(
         String firstName,
         String lastName,
         String phone,
+        String linkedinUrl,
+        String photoUrl,
         Role role,
         boolean enabled,
+        boolean emailVerified,
         Instant createdAt) {
 }
