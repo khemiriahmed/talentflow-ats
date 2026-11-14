@@ -1,0 +1,94 @@
+<section class="page container">
+  <header class="page-head">
+    <div>
+      <h1>Journal d’audit</h1>
+      <p class="lede">
+        Traçabilité des actions sensibles (RF-70). Ce journal est en lecture seule et réservé aux administrateurs.
+      </p>
+    </div>
+  </header>
+
+  <form class="toolbar" (ngSubmit)="search()">
+    <div class="field">
+      <label for="action">Action</label>
+      <input id="action" class="input" type="text" placeholder="ex. USER_ROLE_CHANGED" [ngModel]="action()" (ngModelChange)="action.set($event)" name="action" />
+    </div>
+    <div class="field">
+      <label for="entity">Objet</label>
+      <select id="entity" class="input" [ngModel]="entityType()" (ngModelChange)="entityType.set($event)" name="entity">
+        @for (option of entityTypes; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+    <div class="field">
+      <label for="actor">ID acteur</label>
+      <input id="actor" class="input" type="number" min="1" [ngModel]="actorId()" (ngModelChange)="actorId.set($event)" name="actor" />
+    </div>
+    <div class="actions">
+      <button class="btn btn-primary" type="submit">Filtrer</button>
+    </div>
+  </form>
+
+  @if (logs.error()) {
+    <div class="alert" role="alert">
+      <p>Impossible de charger le journal d’audit.</p>
+      <button type="button" class="btn btn-outline" (click)="logs.reload()">Réessayer</button>
+    </div>
+  } @else if (logs.value(); as result) {
+    @if (result.content.length === 0) {
+      <div class="empty-state">
+        <p>Aucune entrée ne correspond à ces filtres.</p>
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Action</th>
+              <th>Objet</th>
+              <th>Acteur</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (log of result.content; track log.id) {
+              <tr>
+                <td class="nowrap">{{ log.createdAt | date: 'd MMM y · HH:mm:ss' }}</td>
+                <td><code>{{ humanize(log.action) }}</code></td>
+                <td>
+                  @if (log.entityType) {
+                    {{ log.entityType }}
+                    @if (log.entityId) {
+                      <span class="hint">#{{ log.entityId }}</span>
+                    }
+                  } @else {
+                    —
+                  }
+                </td>
+                <td>
+                  @if (log.actorName) {
+                    {{ log.actorName }}
+                    <span class="hint">#{{ log.actorId }}</span>
+                  } @else {
+                    Système
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (result.page.totalPages > 1) {
+        <nav class="pager" aria-label="Pagination du journal d’audit">
+          <button type="button" class="btn btn-outline" [disabled]="result.page.number === 0" (click)="goTo(result.page.number - 1)">Précédent</button>
+          <span>Page {{ result.page.number + 1 }} sur {{ result.page.totalPages }} · {{ result.page.totalElements }} entrées</span>
+          <button type="button" class="btn btn-outline" [disabled]="result.page.number + 1 >= result.page.totalPages" (click)="goTo(result.page.number + 1)">Suivant</button>
+        </nav>
+      }
+    }
+  } @else {
+    <p class="status">Chargement du journal…</p>
+  }
+</section>

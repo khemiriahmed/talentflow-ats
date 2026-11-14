@@ -1,0 +1,159 @@
+<section class="page container">
+  <header class="page-head">
+    <div>
+      <h1>Utilisateurs</h1>
+      <p class="lede">Créez des comptes équipe, changez les rôles et désactivez les accès.</p>
+    </div>
+    <button type="button" class="btn btn-primary" (click)="toggleCreate()">
+      {{ showCreate() ? 'Fermer' : 'Créer un compte' }}
+    </button>
+  </header>
+
+  @if (error(); as message) {
+    <p class="alert" role="alert">{{ message }}</p>
+  }
+  @if (saved(); as message) {
+    <p class="notice" role="status">{{ message }}</p>
+  }
+
+  @if (showCreate()) {
+    <form class="card stack create" [formGroup]="form" (ngSubmit)="create()" novalidate>
+      <h2>Nouveau compte</h2>
+      <div class="grid-2">
+        <div class="field">
+          <label for="firstName">Prénom</label>
+          <input id="firstName" class="input" formControlName="firstName" />
+          @if (submitted() && form.controls.firstName.invalid) {
+            <p class="error">Le prénom est obligatoire.</p>
+          }
+        </div>
+        <div class="field">
+          <label for="lastName">Nom</label>
+          <input id="lastName" class="input" formControlName="lastName" />
+          @if (submitted() && form.controls.lastName.invalid) {
+            <p class="error">Le nom est obligatoire.</p>
+          }
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label for="email">Adresse email</label>
+          <input id="email" class="input" type="email" formControlName="email" />
+          @if (submitted() && form.controls.email.invalid) {
+            <p class="error">Saisissez une adresse email valide.</p>
+          }
+        </div>
+        <div class="field">
+          <label for="phone">Téléphone <span class="optional">(facultatif)</span></label>
+          <input id="phone" class="input" type="tel" formControlName="phone" />
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label for="role">Rôle</label>
+          <select id="role" class="input" formControlName="role">
+            @for (role of roles; track role) {
+              <option [value]="role">{{ roleLabels[role] }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label for="password">Mot de passe provisoire</label>
+          <input id="password" class="input" type="password" formControlName="password" autocomplete="new-password" />
+          @if (submitted() && form.controls.password.invalid) {
+            <p class="error">8 caractères minimum.</p>
+          }
+        </div>
+      </div>
+      <button class="btn btn-primary" type="submit">Créer le compte</button>
+    </form>
+  }
+
+  <form class="toolbar" (ngSubmit)="users.reload()">
+    <div class="field">
+      <label for="search">Filtrer la page courante</label>
+      <input id="search" class="input" type="search" [value]="keyword()" (input)="keyword.set($any($event.target).value)" />
+    </div>
+  </form>
+
+  @if (users.error()) {
+    <div class="alert" role="alert">
+      <p>Impossible de charger les utilisateurs.</p>
+      <button type="button" class="btn btn-outline" (click)="users.reload()">Réessayer</button>
+    </div>
+  } @else if (users.value(); as result) {
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Utilisateur</th>
+            <th>Rôle</th>
+            <th>Email vérifié</th>
+            <th>État</th>
+            <th>Créé le</th>
+            <th class="right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of filtered(); track user.id) {
+            <tr [class.disabled]="!user.enabled">
+              <td>
+                <strong>{{ user.firstName }} {{ user.lastName }}</strong>
+                <p class="hint">{{ user.email }}</p>
+              </td>
+              <td>
+                <select
+                  class="input compact"
+                  [value]="user.role"
+                  [disabled]="busy() === user.id || user.id === currentUserId()"
+                  (change)="changeRole(user, $any($event.target).value)"
+                >
+                  @for (role of roles; track role) {
+                    <option [value]="role">{{ roleLabels[role] }}</option>
+                  }
+                </select>
+              </td>
+              <td>
+                <span [class]="user.emailVerified ? 'badge' : 'badge warn'">
+                  {{ user.emailVerified ? 'Oui' : 'Non' }}
+                </span>
+              </td>
+              <td>
+                <span [class]="user.enabled ? 'badge' : 'badge danger'">
+                  {{ user.enabled ? 'Actif' : 'Désactivé' }}
+                </span>
+              </td>
+              <td>{{ user.createdAt | date: 'd MMM y' }}</td>
+              <td class="right">
+                <button
+                  type="button"
+                  class="btn small"
+                  [class.btn-outline]="user.id !== currentUserId()"
+                  [class.btn-danger]="user.enabled && user.id !== currentUserId()"
+                  [disabled]="busy() === user.id || user.id === currentUserId()"
+                  (click)="toggleEnabled(user)"
+                >
+                  {{ user.enabled ? 'Désactiver' : 'Réactiver' }}
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="hint">Aucun utilisateur sur cette page.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (result.page.totalPages > 1) {
+      <nav class="pager" aria-label="Pagination des utilisateurs">
+        <button type="button" class="btn btn-outline" [disabled]="result.page.number === 0" (click)="goTo(result.page.number - 1)">Précédent</button>
+        <span>Page {{ result.page.number + 1 }} sur {{ result.page.totalPages }} · {{ result.page.totalElements }} utilisateurs</span>
+        <button type="button" class="btn btn-outline" [disabled]="result.page.number + 1 >= result.page.totalPages" (click)="goTo(result.page.number + 1)">Suivant</button>
+      </nav>
+    }
+  } @else {
+    <p class="status">Chargement des utilisateurs…</p>
+  }
+</section>
